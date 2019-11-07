@@ -129,8 +129,7 @@ class PBIL(object):
                 individual = self.population.get_individual(index)
                 if individual[2] >= mean_fitness:
                     self.probability_matrix[individual[0]][individual[1]] += \
-                        self.learn_rate * (
-                                    self.probability_matrix[best_individual[0]][best_individual[1]] - 0.5)
+                        self.learn_rate * (self.probability_matrix[best_individual[0]][best_individual[1]] - 0.5)
                     if max_probability < self.probability_matrix[individual[0]][individual[1]]:
                         max_probability = self.probability_matrix[individual[0]][individual[1]]
                 else:
@@ -175,8 +174,8 @@ class PBIL(object):
 
     def next_generation(self):
         while True:
-            chooser_matrix = list(numpy.random.random(self.scope**2) <=
-                                  list(numpy.reshape(numpy.array(self.probability_matrix), (1, self.scope**2))[0]))
+            chooser_matrix = list(numpy.random.random(self.scope ** 2) <=
+                                  list(numpy.reshape(numpy.array(self.probability_matrix), (1, self.scope ** 2))[0]))
 
             if sum(chooser_matrix) >= self.size:
                 created_population = Population()
