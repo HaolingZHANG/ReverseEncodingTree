@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# IDEA
+.idea/
+
+# output middleware
+output/*
+!output/*.md
+benchmark/results/*
+!benchmark/results/*.md
