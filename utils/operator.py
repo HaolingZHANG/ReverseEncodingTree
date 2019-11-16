@@ -87,8 +87,7 @@ class Operator(object):
         if reporter is None:
             reporter = self._reporter
 
-        visualize.draw_network(config, genome, True, node_names=node_names,
-                               parent_path=self._output_path)
+        visualize.draw_network(config, genome, True, node_names=node_names, parent_path=self._output_path)
         visualize.plot_statistics(reporter, y_log=False, show=True, parent_path=self._output_path)
         visualize.plot_species(reporter, show=True, parent_path=self._output_path)
 

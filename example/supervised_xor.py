@@ -1,4 +1,5 @@
 import neat
+
 from evolution_process.evolutor import EVAL_TYPE, FitDevice, FitProcess
 from utils.operator import Operator
 

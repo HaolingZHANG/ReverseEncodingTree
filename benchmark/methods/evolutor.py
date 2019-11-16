@@ -97,13 +97,13 @@ class PBIL(object):
         self.recorder.add_population(self.population)
 
         for generation in range(generations):
-            self.update_probability_matrix(evolute_type)
-            self.next_generation()
+            self._update_probability_matrix(evolute_type)
+            self._next_generation()
             self.population.fitness(terrain)
             self.recorder.add_population(self.population)
             print("generation = " + str(generation))
 
-    def update_probability_matrix(self, evolute_type):
+    def _update_probability_matrix(self, evolute_type):
         """
         update the probability matrix by population.
 
@@ -172,7 +172,7 @@ class PBIL(object):
                     for col in range(len(self.probability_matrix)):
                         self.probability_matrix[row][col] /= max_probability
 
-    def next_generation(self):
+    def _next_generation(self):
         while True:
             chooser_matrix = list(numpy.random.random(self.scope ** 2) <=
                                   list(numpy.reshape(numpy.array(self.probability_matrix), (1, self.scope ** 2))[0]))

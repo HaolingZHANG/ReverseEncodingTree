@@ -1,5 +1,6 @@
 import gym
 import neat
+
 from evolution_process.evolutor import FitDevice, FitProcess
 from utils.operator import Operator
 
