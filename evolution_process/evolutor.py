@@ -86,9 +86,9 @@ class FitDevice(object):
         :param genomes: genomes of NEAT.
         :param config: configure of genome.
         """
-        print("len genomes = " + str(len(genomes)))
         for genome_id, genome in genomes:
-            self.genome_fitness(genome, config)
+            if genome.fitness is None:
+                self.genome_fitness(genome, config)
 
     def genome_fitness(self, genome, config):
         """

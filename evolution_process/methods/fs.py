@@ -1,10 +1,10 @@
 """
-Name: NEAT evoluted by Estimation of Distribution Algorithm, Population-Based Incremental Learning.
+Name: NEAT evoluted by Feature Selective (FS).
 
 Reference:
 
 Function(s):
-Reproduction by Population-Based Incremental Learning.
+Reproduction by Feature Selective.
 """
 
 from neat import DefaultReproduction

@@ -234,6 +234,14 @@ class GlobalGenome(neat.DefaultGenome):
             self.feature_matrix[row][col] = connect_gene.weight
 
     def distance(self, other, config):
+        """
+        obtain distance by two feature matrix.
+
+        :param other: another genome.
+        :param config: genome config.
+
+        :return: distance of two genomes.
+        """
         other.set_feature_matrix(config)
 
         distance = 0
@@ -245,9 +253,9 @@ class GlobalGenome(neat.DefaultGenome):
 
     def mutate_add_node(self, config):
         """
-        mutate add node when current hidden node is
+        mutate add node when current hidden node (when node number less than the node range).
 
-        :param config:
+        :param config:genome config.
         """
         if config.max_node_num > len(self.nodes):
             super().mutate_add_node(config)
