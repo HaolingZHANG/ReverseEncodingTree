@@ -9,7 +9,7 @@ xor_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
 xor_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
 
 
-if __name__ == '__main__':
+def start_normal():
     # load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -30,3 +30,7 @@ if __name__ == '__main__':
 
     # display the winning genome.
     operator.display_genome()
+
+
+if __name__ == '__main__':
+    start_normal()

@@ -20,18 +20,16 @@ def create_center_new(genome_1, genome_2, config, key):
     :param config: genome config.
     :param key: key of the new genome.
 
-    :return:
+    :return: center genome.
     """
-    if hasattr(genome_1, 'feature_matrix') and hasattr(genome_2, 'feature_matrix') \
-            and len(genome_1.feather_matrix) == len(genome_2.feather_matrix) \
-            and len(genome_1.feather_matrix[0]) == len(genome_2.feather_matrix[0]):
-        length = len(genome_1.feather_matrix)
+    if hasattr(genome_1, 'feature_matrix') and hasattr(genome_2, 'feature_matrix'):
+        length = len(genome_1.feature_matrix)
         new_feature_matrix = [[0 for _ in range(length)] for _ in range(length)]
         for row in range(length):
             for col in range(length):
-                new_feature_matrix[row][col] = (genome_1.feather_matrix[row][col] +
-                                                genome_2.feather_matrix[row][col]) / 2
-        new_genome = config.genome_type(key)
+                new_feature_matrix[row][col] = (genome_1.feature_matrix[row][col] +
+                                                genome_2.feature_matrix[row][col]) / 2
+        new_genome = GlobalGenome(key)
         new_genome.feature_matrix_new(new_feature_matrix, config)
         return new_genome
     return None
@@ -171,10 +169,7 @@ class GlobalGenome(neat.DefaultGenome):
         # print("config.activation_default = " + str(config.activation_default))
         # print("config.aggregation_default = " + str(config.aggregation_default))
         super().configure_new(config)
-        # print(self)
         self.set_feature_matrix(config)
-        # print(self.feature_matrix)
-        # exit(121)
 
     def feature_matrix_new(self, feature_matrix, config):
         """
@@ -242,7 +237,8 @@ class GlobalGenome(neat.DefaultGenome):
 
         :return: distance of two genomes.
         """
-        other.set_feature_matrix(config)
+        if other.feature_matrix is None:
+            other.set_feature_matrix(config)
 
         distance = 0
         for row in range(len(self.feature_matrix)):
@@ -259,3 +255,19 @@ class GlobalGenome(neat.DefaultGenome):
         """
         if config.max_node_num > len(self.nodes):
             super().mutate_add_node(config)
+
+    def __str__(self):
+        s = "Key: {0}\nFitness: {1}\nNodes:".format(self.key, self.fitness)
+        for k, ng in iteritems(self.nodes):
+            s += "\n\t{0} {1!s}".format(k, ng)
+        s += "\nConnections:"
+        connections = list(self.connections.values())
+        connections.sort()
+        for c in connections:
+            s += "\n\t" + str(c)
+
+        s += "\nFeature Matrix:"
+        for row in self.feature_matrix:
+            s += "\n\t" + str(row)
+
+        return s

@@ -4,15 +4,18 @@ Name: NEAT evoluted by Binary Search
 Function(s):
 Reproduction by Binary Search and Random Near Search.
 """
-import math
-from statistics import mean
 
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
-from six import itervalues, iteritems
+
+from evolution_process.bean.genome import create_near_new, create_center_new
 
 
 class Reproduction(DefaultReproduction):
+
+    def __init__(self, config, reporters, stagnation):
+        super().__init__(config, reporters, stagnation)
+        self.genome_config = None
 
     @classmethod
     def parse_config(cls, param_dict):
@@ -41,6 +44,8 @@ class Reproduction(DefaultReproduction):
 
         :return: new genomes.
         """
+        # TODO distance question!!!
+        self.genome_config = genome_config
 
         new_genomes = {}
         distance_matrix = [[float("inf") for _ in range(num_genomes - 1)] for _ in range(num_genomes - 1)]
@@ -76,7 +81,7 @@ class Reproduction(DefaultReproduction):
 
     def reproduce(self, config, species, pop_size, generation):
         """
-        Handles creation of genomes, either from scratch or by sexual or asexual reproduction from parents.
+        handles creation of genomes, either from scratch or by sexual or asexual reproduction from parents.
 
         :param config: genome config.
         :param species: genome species.
@@ -85,11 +90,68 @@ class Reproduction(DefaultReproduction):
 
         :return: new population.
         """
+        current_genomes = []
         print(species.species)
         for key, value in species.species.items():
-            print(str(key) + " | " + str(value.members))
-        # TODO
+            current_genomes.append(value.members.get(key))
+
+        # sort members in order of descending fitness.
+        current_genomes.sort(reverse=True, key=lambda g: g.fitness)
+        for genome in current_genomes:
+            print(genome)
+        if len(current_genomes) > pop_size:
+            current_genomes = current_genomes[:pop_size]
+
+        new_genomes = []
+        for index_1 in range(pop_size):
+            genome_1 = current_genomes[index_1]
+            for index_2 in range(pop_size):
+                count = 0
+                genome_2 = current_genomes[index_2]
+
+                if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:
+                    # add near genome
+                    while count < self.reproduction_config.search_count:
+                        near_genome = create_near_new(genome_1, self.genome_config, pop_size + len(new_genomes))
+                        is_input = True
+                        for check_genome in current_genomes + new_genomes:
+                            if near_genome.distance(check_genome, self.genome_config) \
+                                    > self.reproduction_config.min_distance:
+                                is_input = False
+
+                        if is_input:
+                            new_genomes.append(near_genome)
+                            break
+
+                        count += 1
+
+                    # add center genome
+                    center_genome = create_center_new(genome_1, genome_2, self.genome_config,
+                                                      pop_size + len(new_genomes))
+                    is_input = True
+                    for check_genome in current_genomes + new_genomes:
+                        if center_genome.distance(check_genome, self.genome_config) \
+                                > self.reproduction_config.min_distance:
+                            is_input = False
+
+                    if is_input:
+                        new_genomes.append(center_genome)
 
         new_population = {}
+
+        for index, genome in enumerate(current_genomes + new_genomes):
+            new_population[index] = genome
+
+        # TODO some bugs in self.species
+        # Traceback (most recent call last):
+        #     File "E:/Bi-NEAT/Code/Bi-NEAT/tasks/supervised_xor_compare.py", line 32, in <module>
+        #         operator.obtain_winner()
+        #     File "E:\Bi-NEAT\Code\Bi-NEAT\utils\operator.py", line 52, in obtain_winner
+        #         self._winner = self._population.run(self._fitter.genomes_fitness, self._generations)
+        #     File "D:\Professional\Python3.7.3\lib\site-packages\neat\population.py", line 127, in run
+        #         self.species.speciate(self.config, self.population, self.generation)
+        #     File "D:\Professional\Python3.7.3\lib\site-packages\neat\species.py", line 96, in speciate
+        #         unspeciated.remove(new_rid)
+        #     KeyError: 4
 
         return new_population

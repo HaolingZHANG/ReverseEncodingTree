@@ -6,8 +6,8 @@ from utils.operator import Operator
 
 environment = gym.make("CartPole-v0").unwrapped
 
-# noinspection SpellCheckingInspection
-if __name__ == '__main__':
+
+def start_normal():
     # load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -31,3 +31,8 @@ if __name__ == '__main__':
 
     # evaluate the NeuroEvolution.
     operator.evaluation(environment=environment)
+
+
+# noinspection SpellCheckingInspection
+if __name__ == '__main__':
+    start_normal()
