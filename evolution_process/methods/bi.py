@@ -91,16 +91,19 @@ class Reproduction(DefaultReproduction):
         :return: new population.
         """
         current_genomes = []
-        print(species.species)
         for key, value in species.species.items():
             current_genomes.append(value.members.get(key))
 
         # sort members in order of descending fitness.
         current_genomes.sort(reverse=True, key=lambda g: g.fitness)
-        for genome in current_genomes:
-            print(genome)
         if len(current_genomes) > pop_size:
             current_genomes = current_genomes[:pop_size]
+
+        # calculate average adjusted fitness
+        avg_adjusted_fitness = 0
+        for genome in current_genomes:
+            avg_adjusted_fitness += genome.fitness / pop_size
+        self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
 
         new_genomes = []
         for index_1 in range(pop_size):
