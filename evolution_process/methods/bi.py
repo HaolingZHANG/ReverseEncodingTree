@@ -44,7 +44,7 @@ class Reproduction(DefaultReproduction):
 
         :return: new genomes.
         """
-        # TODO distance question!!!
+        # TODO How to make global distribution based on feature matrix?
         self.genome_config = genome_config
 
         new_genomes = {}
@@ -110,7 +110,7 @@ class Reproduction(DefaultReproduction):
                 genome_2 = current_genomes[index_2]
 
                 if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:
-                    # add near genome
+                    # add near genome (limit search count)
                     while count < self.reproduction_config.search_count:
                         near_genome = create_near_new(genome_1, self.genome_config, pop_size + len(new_genomes))
                         is_input = True

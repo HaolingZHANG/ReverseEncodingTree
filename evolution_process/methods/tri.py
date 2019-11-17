@@ -66,6 +66,7 @@ class Reproduction(bi.Reproduction):
 
         new_genomes = []
 
+        # create new genome in TriNet.
         for row, one_list in enumerate(distance_matrix):
             cal_list = numpy.array([[i for i in range(len(one_list))], one_list])
             sort_list = cal_list.T[numpy.lexsort(cal_list)].T
@@ -86,6 +87,7 @@ class Reproduction(bi.Reproduction):
                     new_genomes.append(new_genome)
 
                 count += 1
+                # eliminate redundant stations
                 if count == 3:
                     break
 
