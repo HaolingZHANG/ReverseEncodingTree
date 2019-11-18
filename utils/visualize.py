@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_statistics(statistics, y_log=False, show=False, parent_path=""):
+def plot_statistics(statistics, y_log=False, show=False, parent_path="", filename=None):
     """
     Plot the population's average and best fitness.
 
@@ -16,6 +16,7 @@ def plot_statistics(statistics, y_log=False, show=False, parent_path=""):
     :param y_log: whether y-axis needs log.
     :param show: whether the view is showable.
     :param parent_path: parent path of output files.
+    :param filename: file name of the output.
     """
     generation = range(len(statistics.most_fit_genomes))
     best_fitness = [c.fitness for c in statistics.most_fit_genomes]
@@ -35,20 +36,25 @@ def plot_statistics(statistics, y_log=False, show=False, parent_path=""):
     if y_log:
         plt.gca().set_yscale('symlog')
 
-    plt.savefig(parent_path + "fitness.svg")
+    if filename is None:
+        plt.savefig(parent_path + "fitness.svg")
+    else:
+        plt.savefig(parent_path + filename + "_fitness.svg")
+
     if show:
         plt.show()
 
     plt.close()
 
 
-def plot_species(statistics, show=False, parent_path=""):
+def plot_species(statistics, show=False, parent_path="", filename=None):
     """
     Visualize speciation throughout evolution.
 
     :param statistics: statistics of NeuroEvolution.
     :param show: whether the view is showable.
     :param parent_path: parent path of output files.
+    :param filename: file name of the output.
     """
     if plt is None:
         warnings.warn("This display is not available due to a missing optional dependency (matplotlib)")
@@ -65,7 +71,10 @@ def plot_species(statistics, show=False, parent_path=""):
     plt.ylabel("Size per Species")
     plt.xlabel("Generations")
 
-    plt.savefig(parent_path + "speciation.svg")
+    if filename is None:
+        plt.savefig(parent_path + "speciation.svg")
+    else:
+        plt.savefig(parent_path + filename + "_speciation.svg")
 
     if show:
         plt.show()

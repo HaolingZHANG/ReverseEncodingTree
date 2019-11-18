@@ -29,7 +29,7 @@ def start_normal():
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome()
+    operator.display_genome(filename="normal")
 
 
 if __name__ == '__main__':

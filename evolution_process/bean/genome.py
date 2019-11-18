@@ -47,6 +47,7 @@ def create_near_new(genome, config, key):
     """
     new_genome = copy.deepcopy(genome)
     new_genome.key = key
+    new_genome.fitness = None
     new_genome.mutate(config)
     new_genome.set_feature_matrix(config)
 
@@ -249,18 +250,16 @@ class GlobalGenome(neat.DefaultGenome):
         # add node bias
         index = config.num_inputs
         for node_key, node_gene in iteritems(self.nodes):
-            try:
-                self.feature_matrix[index][0] = node_gene.bias
-                mapping[node_key] = index
-                index += 1
-            except IndexError:
-                print('index = ' + str(index))
+            self.feature_matrix[index][0] = node_gene.bias
+            mapping[node_key] = index
+            index += 1
 
         # add connect weight
         for connect_gene in itervalues(self.connections):
-            row = mapping.get(connect_gene.key[0])
-            col = mapping.get(connect_gene.key[1]) + 1
-            self.feature_matrix[row][col] = connect_gene.weight
+            if mapping.get(connect_gene.key[0]) is not None and mapping.get(connect_gene.key[1]) is not None:
+                row = mapping.get(connect_gene.key[0])
+                col = mapping.get(connect_gene.key[1]) + 1
+                self.feature_matrix[row][col] = connect_gene.weight
 
     def distance(self, other, config):
         """
@@ -287,7 +286,7 @@ class GlobalGenome(neat.DefaultGenome):
 
         :param config:genome config.
         """
-        if config.max_node_num > len(self.nodes):
+        if config.max_node_num - config.num_inputs > len(self.nodes):
             super().mutate_add_node(config)
 
     def __str__(self):

@@ -72,14 +72,11 @@ class Reproduction(DefaultReproduction):
                 count += 1
 
                 if count > self.reproduction_config.search_count:
-                    raise Exception('init_distance is too large for the whole landscape.')
+                    raise Exception("init_distance is too large for the whole landscape," +
+                                    "please reduce init_distance or try again!")
 
             new_genomes[key] = genome
             self.ancestors[key] = tuple()
-
-        # print("distance:")
-        # for i in distance_matrix:
-        #     print(i)
 
         return new_genomes
 
@@ -94,21 +91,24 @@ class Reproduction(DefaultReproduction):
 
         :return: new population.
         """
+        # obtain all genomes from species.
         current_genomes = []
-        for key, value in species.species.items():
-            current_genomes.append(value.members.get(key))
-
-        # sort members in order of descending fitness.
-        current_genomes.sort(reverse=True, key=lambda x: x.fitness)
-
-        if len(current_genomes) > pop_size:
-            current_genomes = current_genomes[:pop_size]
+        for i, value in species.species.items():
+            members = value.members
+            for key, individual in members.items():
+                current_genomes.append(individual)
 
         # calculate average adjusted fitness
         avg_adjusted_fitness = 0
         for genome in current_genomes:
             avg_adjusted_fitness += genome.fitness / pop_size
         self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
+
+        # sort members in order of descending fitness.
+        current_genomes.sort(reverse=True, key=lambda x: x.fitness)
+
+        if len(current_genomes) > pop_size:
+            current_genomes = current_genomes[:pop_size]
 
         new_genomes = []
         for index_1 in range(pop_size):
@@ -124,7 +124,7 @@ class Reproduction(DefaultReproduction):
                         is_input = True
                         for check_genome in current_genomes + new_genomes:
                             if near_genome.distance(check_genome, self.genome_config) \
-                                    > self.reproduction_config.min_distance:
+                                    < self.reproduction_config.min_distance:
                                 is_input = False
 
                         if is_input:
@@ -139,30 +139,16 @@ class Reproduction(DefaultReproduction):
                     is_input = True
                     for check_genome in current_genomes + new_genomes:
                         if center_genome.distance(check_genome, self.genome_config) \
-                                > self.reproduction_config.min_distance:
+                                < self.reproduction_config.min_distance:
                             is_input = False
 
-                    if is_input:
+                    if is_input and center_genome is not None:
                         new_genomes.append(center_genome)
 
-        print("pop_size = " + str(pop_size))
-        print("new_genomes = " + str(len(new_genomes)))
-
+        # aggregate final population
         new_population = {}
-
         for index, genome in enumerate(current_genomes + new_genomes):
+            genome.key = index
             new_population[index] = genome
-
-        # TODO some bugs in self.species
-        # Traceback (most recent call last):
-        #     File "E:/Bi-NEAT/Code/Bi-NEAT/tasks/supervised_xor_compare.py", line 32, in <module>
-        #         operator.obtain_winner()
-        #     File "E:\Bi-NEAT\Code\Bi-NEAT\utils\operator.py", line 52, in obtain_winner
-        #         self._winner = self._population.run(self._fitter.genomes_fitness, self._generations)
-        #     File "D:\Professional\Python3.7.3\lib\site-packages\neat\population.py", line 127, in run
-        #         self.species.speciate(self.config, self.population, self.generation)
-        #     File "D:\Professional\Python3.7.3\lib\site-packages\neat\species.py", line 96, in speciate
-        #         unspeciated.remove(new_rid)
-        #     KeyError: 4
 
         return new_population

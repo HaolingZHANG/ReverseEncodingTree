@@ -36,7 +36,7 @@ def start_bi():
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome()
+    operator.display_genome(filename="bi")
 
 
 def start_tri():
@@ -59,10 +59,10 @@ def start_tri():
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome()
+    operator.display_genome(filename="tri")
 
 
 if __name__ == '__main__':
-    # start_normal()
+    start_normal()
     # start_bi()
-    start_tri()
+    # start_tri()

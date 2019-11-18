@@ -27,7 +27,7 @@ def start_normal():
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome()
+    operator.display_genome(filename="normal")
 
     # evaluate the NeuroEvolution.
     operator.evaluation(environment=environment)

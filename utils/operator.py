@@ -69,10 +69,11 @@ class Operator(object):
         """
         return self._reporter
 
-    def display_genome(self, node_names=None, genome=None, config=None, reporter=None):
+    def display_genome(self, filename, node_names=None, genome=None, config=None, reporter=None):
         """
         display the genome.
 
+        :param filename: file name of the output.
         :param node_names: node information for display the obtained network.
         :param genome: genome of network.
         :param config: configures of NEAT.
@@ -87,9 +88,12 @@ class Operator(object):
         if reporter is None:
             reporter = self._reporter
 
-        visualize.draw_network(config, genome, True, node_names=node_names, parent_path=self._output_path)
-        visualize.plot_statistics(reporter, y_log=False, show=True, parent_path=self._output_path)
-        visualize.plot_species(reporter, show=True, parent_path=self._output_path)
+        visualize.draw_network(config, genome, True, node_names=node_names,
+                               parent_path=self._output_path, filename=filename)
+        visualize.plot_statistics(reporter, y_log=False, show=True,
+                                  parent_path=self._output_path, filename=filename)
+        visualize.plot_species(reporter, show=True,
+                               parent_path=self._output_path, filename=filename)
 
     def evaluation(self, dataset=None, environment=None, run_minutes=1):
         """
