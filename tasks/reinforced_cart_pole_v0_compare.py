@@ -27,7 +27,7 @@ def start_bi():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        generations=1, checkpoint=5,
+                        generations=1, checkpoint=6,
                         stdout=True, output_path="../output/")
 
     # obtain the winning genome.
@@ -50,7 +50,7 @@ def start_tri():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        generations=1, checkpoint=5,
+                        generations=1, checkpoint=7,
                         stdout=True, output_path="../output/")
 
     # obtain the winning genome.

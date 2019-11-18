@@ -1,5 +1,5 @@
 import copy
-from itertools import count
+import random
 
 import math
 import neat
@@ -8,7 +8,7 @@ from neat.aggregations import AggregationFunctionSet
 from neat.config import ConfigParameter
 from neat.genes import DefaultNodeGene, DefaultConnectionGene
 from neat.genome import DefaultGenomeConfig
-from six import iteritems, itervalues, iterkeys
+from six import iteritems, itervalues
 
 
 def create_center_new(genome_1, genome_2, config, key):
@@ -53,13 +53,14 @@ def create_near_new(genome, config, key):
     return new_genome
 
 
-class GlobalGenomeConfig(neat.DefaultGenomeConfig):
+# noinspection PyMissingConstructor
+class GlobalGenomeConfig(DefaultGenomeConfig):
 
     def __init__(self, params):
         """
         initialize config by params, add ConfigParameter('max_num', int)
         """
-        # Create full set of available activation functions.
+        # create full set of available activation functions.
         self.num_inputs = 0
         self.num_outputs = 0
         self.single_structural_mutation = None
@@ -126,28 +127,6 @@ class GlobalGenomeConfig(neat.DefaultGenomeConfig):
 
         self.node_indexer = None
 
-    def get_new_node_key(self, node_dict):
-        if self.node_indexer is None:
-            self.node_indexer = count(max(list(iterkeys(node_dict))) + 1)
-
-        new_id = next(self.node_indexer)
-
-        assert new_id not in node_dict
-
-        return new_id
-
-    def check_structural_mutation_surer(self):
-        if self.structural_mutation_surer == 'true':
-            return True
-        elif self.structural_mutation_surer == 'false':
-            return False
-        elif self.structural_mutation_surer == 'default':
-            return self.single_structural_mutation
-        else:
-            error_string = "Invalid structural_mutation_surer {!r}".format(
-                self.structural_mutation_surer)
-            raise RuntimeError(error_string)
-
 
 class GlobalGenome(neat.DefaultGenome):
 
@@ -166,10 +145,61 @@ class GlobalGenome(neat.DefaultGenome):
 
         :param config: genome config.
         """
-        # print("config.activation_default = " + str(config.activation_default))
-        # print("config.aggregation_default = " + str(config.aggregation_default))
-        super().configure_new(config)
+        # create node genes for the output pins.
+        for node_key in config.output_keys:
+            self.nodes[node_key] = self.create_node(config, node_key)
+
+        # add hidden nodes if requested.
+        if config.num_hidden > 0:
+            for node_key in range(len(config.output_keys), config.num_hidden + len(config.output_keys)):
+                node = self.create_node(config, node_key)
+                self.nodes[node_key] = node
+
+        # add connections with global random.
+        for input_id, output_id in self.compute_connections(config):
+            connection = self.create_connection(config, input_id, output_id)
+            self.connections[connection.key] = connection
+        # add feature matrix
         self.set_feature_matrix(config)
+
+    @staticmethod
+    def compute_connections(config):
+        start = len(config.output_keys)
+        stop = config.num_hidden + len(config.output_keys)
+        hidden_keys = random.sample([index for index in range(start, stop)], random.randint(0, config.num_hidden))
+
+        connections = []
+
+        if len(hidden_keys) == 0:
+            for input_id in config.input_keys:
+                for output_id in config.output_keys:
+                    if random.randint(0, 1):
+                        connections.append((input_id, output_id))
+
+            if len(connections) == 0:
+                input_id = random.sample(config.input_keys, 1)
+                for output_id in config.output_keys:
+                    connections.append((input_id[0], output_id))
+        else:
+            chosen_keys = set()
+
+            # from input and hidden nodes to hidden nodes.
+            for index in range(len(hidden_keys)):
+                before_keys = config.input_keys + hidden_keys[:index]
+                for in_degree in random.sample(before_keys, random.randint(1, len(before_keys))):
+                    connections.append((in_degree, hidden_keys[index]))
+                    chosen_keys.add(in_degree)
+                    chosen_keys.add(hidden_keys[index])
+
+            # from input and hidden nodes to output nodes.
+            chosen_keys = list(chosen_keys)
+            for output_id in config.output_keys:
+                for in_degree in random.sample(chosen_keys, random.randint(1, len(chosen_keys))):
+                    connections.append((in_degree, output_id))
+
+        connections = sorted(connections)
+
+        return connections
 
     def feature_matrix_new(self, feature_matrix, config):
         """
@@ -180,16 +210,20 @@ class GlobalGenome(neat.DefaultGenome):
         """
         self.feature_matrix = feature_matrix
 
-        # set nodes by feature matrix
-        for index in range(config.num_hidden):
-            node = DefaultNodeGene(index)
-            node.bias = feature_matrix[index + config.num_inputs][0]
+        # create node genes for the output pins.
+        for node_key in config.output_keys:
+            self.nodes[node_key] = self.create_node(config, node_key)
+
+        # add hidden nodes by feature matrix if requested.
+        for node_key in range(config.num_hidden):
+            node = DefaultNodeGene(node_key)
+            node.bias = feature_matrix[node_key + config.num_inputs][0]
             node.response = config.response_init_mean
             node.activation = config.activation_default
             node.aggregation = config.aggregation_default
-            self.nodes[index] = node
+            self.nodes[node_key] = node
 
-        # set connections by feature matrix
+        # set connections by feature matrix.
         for in_index in range(len(feature_matrix)):
             for out_index in range(1, len(feature_matrix[in_index])):
                 if feature_matrix[in_index][out_index] > 0:
@@ -257,15 +291,7 @@ class GlobalGenome(neat.DefaultGenome):
             super().mutate_add_node(config)
 
     def __str__(self):
-        s = "Key: {0}\nFitness: {1}\nNodes:".format(self.key, self.fitness)
-        for k, ng in iteritems(self.nodes):
-            s += "\n\t{0} {1!s}".format(k, ng)
-        s += "\nConnections:"
-        connections = list(self.connections.values())
-        connections.sort()
-        for c in connections:
-            s += "\n\t" + str(c)
-
+        s = super().__str__()
         s += "\nFeature Matrix:"
         for row in self.feature_matrix:
             s += "\n\t" + str(row)

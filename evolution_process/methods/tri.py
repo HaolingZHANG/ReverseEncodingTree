@@ -27,7 +27,8 @@ class Reproduction(bi.Reproduction):
                                    ConfigParameter('survival_threshold', float, 0.2),
                                    ConfigParameter('min_species_size', int, 2),
                                    ConfigParameter('init_distance', float, 5),
-                                   ConfigParameter('min_distance', float, 0.2)])
+                                   ConfigParameter('min_distance', float, 0.2),
+                                   ConfigParameter('search_count', int, 1)])
 
     def reproduce(self, config, species, pop_size, generation):
         """
@@ -41,7 +42,6 @@ class Reproduction(bi.Reproduction):
         :return: new population.
         """
         current_genomes = []
-        print(species.species)
         for key, value in species.species.items():
             current_genomes.append(value.members.get(key))
 

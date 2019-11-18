@@ -37,9 +37,7 @@ conn_delete_prob        = 0.5
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
-
 feed_forward            = True
-initial_connection      = full_direct
 
 # node add/remove rates
 node_add_prob           = 0.2
@@ -80,6 +78,6 @@ species_elitism      = 2
 [Reproduction]
 elitism            = 2
 survival_threshold = 0.2
-init_distance      = 2
+init_distance      = 7
 min_distance       = 0.1
-search_count       = 20
+search_count       = 30

@@ -32,7 +32,7 @@ class Reproduction(DefaultReproduction):
                                    ConfigParameter('min_species_size', int, 2),
                                    ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
-                                   ConfigParameter('search_count', int, 0)])
+                                   ConfigParameter('search_count', int, 1)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -44,7 +44,10 @@ class Reproduction(DefaultReproduction):
 
         :return: new genomes.
         """
-        # TODO How to make global distribution based on feature matrix?
+
+        if genome_config.num_hidden + genome_config.num_inputs + genome_config.num_outputs > genome_config.max_node_num:
+            raise Exception("config: max_node_num must larger than num_inputs + num_outputs + num_hidden")
+
         self.genome_config = genome_config
 
         new_genomes = {}
@@ -74,9 +77,10 @@ class Reproduction(DefaultReproduction):
             new_genomes[key] = genome
             self.ancestors[key] = tuple()
 
-        print("distance:")
-        for i in distance_matrix:
-            print(i)
+        # print("distance:")
+        # for i in distance_matrix:
+        #     print(i)
+
         return new_genomes
 
     def reproduce(self, config, species, pop_size, generation):
@@ -95,7 +99,8 @@ class Reproduction(DefaultReproduction):
             current_genomes.append(value.members.get(key))
 
         # sort members in order of descending fitness.
-        current_genomes.sort(reverse=True, key=lambda g: g.fitness)
+        current_genomes.sort(reverse=True, key=lambda x: x.fitness)
+
         if len(current_genomes) > pop_size:
             current_genomes = current_genomes[:pop_size]
 
@@ -139,6 +144,9 @@ class Reproduction(DefaultReproduction):
 
                     if is_input:
                         new_genomes.append(center_genome)
+
+        print("pop_size = " + str(pop_size))
+        print("new_genomes = " + str(len(new_genomes)))
 
         new_population = {}
 

@@ -39,10 +39,7 @@ conn_delete_prob        = 0.2
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
-
 feed_forward            = True
-initial_connection      = full
-# options (unconnected, fs_neat, full)
 
 # node add/remove rates
 node_add_prob           = 0.9
