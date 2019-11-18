@@ -95,8 +95,6 @@ class Reproduction(bi.Reproduction):
                         new_genomes.append(new_genome)
                         break
 
-        print("len(new_genomes) = " + str(len(new_genomes)))
-
         # aggregate final population
         new_population = {}
         for index, genome in enumerate(current_genomes + new_genomes):

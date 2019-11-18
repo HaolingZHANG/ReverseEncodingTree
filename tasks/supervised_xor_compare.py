@@ -64,5 +64,5 @@ def start_tri():
 
 if __name__ == '__main__':
     start_normal()
-    # start_bi()
-    # start_tri()
+    start_bi()
+    start_tri()
