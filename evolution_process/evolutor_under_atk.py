@@ -150,7 +150,7 @@ class FitDevice(object):
                 num_atk_recv = 0.
                 if random.randint(0,100) < noise_level * 100: #attak under a noise level
                     fake_obs, w_atk = obs_atker.Atk(observation, atk = True) # if attacked, w_atk = 1
-                    num_atk_recv += 1.
+                    num_atk_recv += float(w_atk)
                 else:
                     action_values = network.activate(fake_obs)
 

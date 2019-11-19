@@ -29,7 +29,7 @@ class Atk_model():
         # self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         
 
-    def Atk(self, state, atk = False, t_i = 1):
+    def Atk(self, state, atk = False, t_i = 0):
         if atk == True:
             s_size = len(state)
             if self.Ftype == 'reverse':
@@ -38,7 +38,7 @@ class Atk_model():
                 np.random.normal(np.mean(state[0:s_size]), 0.1, s_size)
             elif self.Ftype == 'zerout':
                 state[0:s_size-1] = 0 
-            t_i = 0
+            t_i = 1
         return np.array(state), t_i
 
     def P_Timing(self, act_vals):
