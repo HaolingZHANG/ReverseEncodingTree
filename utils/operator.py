@@ -10,7 +10,7 @@ from utils import visualize
 class Operator(object):
 
     def __init__(self, config, fitter, node_names,
-                 generations=10, checkpoint=0, stdout=True, output_path=None):
+                 generations=None, checkpoint=0, stdout=True, output_path=None):
         """
         Initialize the operator of NeuroEvolution.
 

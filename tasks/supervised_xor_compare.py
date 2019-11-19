@@ -27,10 +27,8 @@ def start_bi():
     fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
 
     # initialize the NeuroEvolution
-    operator = Operator(config=config, fitter=fitter,
-                        node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
-                        generations=300, checkpoint=51,
-                        stdout=True, output_path="../output/")
+    operator = Operator(config=config, fitter=fitter, node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
+                        checkpoint=51, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
@@ -50,10 +48,8 @@ def start_tri():
     fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
 
     # initialize the NeuroEvolution
-    operator = Operator(config=config, fitter=fitter,
-                        node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
-                        generations=300, checkpoint=52,
-                        stdout=True, output_path="../output/")
+    operator = Operator(config=config, fitter=fitter, node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
+                        checkpoint=52, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
