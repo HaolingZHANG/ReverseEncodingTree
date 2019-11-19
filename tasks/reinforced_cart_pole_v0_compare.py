@@ -27,14 +27,13 @@ def start_bi():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        generations=1, checkpoint=6,
-                        stdout=True, output_path="../output/")
+                        checkpoint=6, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="bi")
+    operator.display_genome(filename="CartPole-v0.bi")
 
 
 def start_tri():
@@ -50,17 +49,16 @@ def start_tri():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        generations=1, checkpoint=7,
-                        stdout=True, output_path="../output/")
+                        checkpoint=7, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="tri")
+    operator.display_genome(filename="CartPole-v0.tri")
 
 
 if __name__ == '__main__':
-    start_normal()
+    # start_normal()
     start_bi()
-    start_tri()
+    # start_tri()

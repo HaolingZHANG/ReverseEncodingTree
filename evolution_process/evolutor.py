@@ -214,8 +214,7 @@ class FitProcess(object):
         """
         if learn_type == LEARN_TYPE.Supervised:
             if self.init_fitness is None:
-                logging.error("No init fitness value!")
-                exit(1)
+                raise Exception("No init fitness value!")
             current_fitness = self.init_fitness
             for output, expected_output in zip(obtain_outputs, expected_outputs):
                 current_fitness = self._update(current_fitness, output, expected_output)

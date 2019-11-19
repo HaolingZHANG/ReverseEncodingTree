@@ -20,14 +20,13 @@ def start_normal():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        generations=1, checkpoint=5,
-                        stdout=True, output_path="../output/")
+                        checkpoint=5, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="normal")
+    operator.display_genome(filename="CartPole-v0.normal")
 
     # evaluate the NeuroEvolution.
     operator.evaluation(environment=environment)

@@ -5,7 +5,7 @@ pop_size              = 100
 # Note: the fitness threshold will never be reached because
 # we are controlling the termination ourselves based on simulation performance.
 fitness_criterion     = max
-fitness_threshold     = 2.
+fitness_threshold     = 200.
 reset_on_extinction   = 0
 
 [DefaultGenome]
