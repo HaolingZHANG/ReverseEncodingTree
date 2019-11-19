@@ -29,7 +29,7 @@ class Atk_model():
         # self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         
 
-    def Atk_Obs(self, state, atk = False, t_i = 1):
+    def Atk(self, state, atk = False, t_i = 1):
         if atk == True:
             s_size = len(state)
             if self.Ftype == 'reverse':
