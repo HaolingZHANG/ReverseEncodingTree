@@ -32,6 +32,34 @@ def create_center_new(genome_1, genome_2, config, key):
         new_genome = GlobalGenome(key)
         new_genome.feature_matrix_new(new_feature_matrix, config)
         return new_genome
+
+    return None
+
+
+def create_golden_section_new(genome_1, genome_2, config, key):
+    """
+    create a new genome at the golden-section of two genomes, near genome 1.
+
+    :param genome_1: one genome.
+    :param genome_2: another genome.
+    :param config: genome config.
+    :param key: key of the new genome.
+
+    :return: center genome.
+    """
+    if hasattr(genome_1, 'feature_matrix') and hasattr(genome_2, 'feature_matrix'):
+        length = len(genome_1.feature_matrix)
+        new_feature_matrix = [[0 for _ in range(length)] for _ in range(length)]
+        for row in range(length):
+            for col in range(length):
+                value_1 = genome_1.feature_matrix[row][col]
+                value_2 = genome_2.feature_matrix[row][col]
+                new_feature_matrix[row][col] = value_1 + (value_2 - value_1) * ((3 - math.sqrt(5)) / 2)
+
+        new_genome = GlobalGenome(key)
+        new_genome.feature_matrix_new(new_feature_matrix, config)
+        return new_genome
+
     return None
 
 
