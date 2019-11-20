@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 import math
 import numpy
@@ -45,14 +46,18 @@ class FitDevice(object):
         self.environment = None
         self.episode_steps = None
         self.episode_generation = None
+        self.attacker = None
+        self.noise_level = None
 
-    def set_environment(self, environment, episode_steps, episode_generation):
+    def set_environment(self, environment, episode_steps, episode_generation, attacker=None, noise_level=None):
         """
         Set the environment of Reinforcement Learning in gym library.
 
         :param environment: environment of Reinforcement Learning in gym library.
         :param episode_steps: maximum episode steps.
         :param episode_generation: evaluate by the minimum of episode rewards
+        :param attacker:
+        :param noise_level:
         """
         logging.info("Obtain the environment.")
         if self.dataset is None:
@@ -60,6 +65,8 @@ class FitDevice(object):
             self.episode_steps = episode_steps
             self.episode_generation = episode_generation
             self.learn_type = LEARN_TYPE.Reinforced
+            self.attacker = attacker
+            self.noise_level = noise_level
         elif self.learn_type is None:
             logging.warning("Do not enter data repeatedly!")
         else:
@@ -128,17 +135,28 @@ class FitDevice(object):
         """
         network = self.generated_network(genome, config)
 
+        has_attack = self.attacker is not None and self.noise_level is not None
+
         episode_recorder = []
         # tasks many episodes for the genome in case it is lucky.
         for episode in range(self.episode_generation):
             accumulative_recorder = 0
+            attack_count = 0
             observation = self.environment.reset()
             for step in range(self.episode_steps):
-                action_values = network.activate(observation)
+                # set attack if has attack.
+                if has_attack and random.randint(0, 100) < self.noise_level * 100:
+                    attack_observation = self.attacker.attack(observation)
+                    action_values = network.activate(attack_observation)
+                    attack_count += 1
+                else:
+                    action_values = network.activate(observation)
                 action = numpy.argmax(action_values)
                 current_observation, reward, done, _ = self.environment.step(action)
                 accumulative_recorder += reward
                 if done:
+                    if has_attack:
+                        print("with: ", round(attack_count / float(step + 1), 2), "% attack.")
                     break
                 else:
                     observation = current_observation
