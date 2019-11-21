@@ -51,5 +51,8 @@ class CartPole_v0_Attacker(object):
                 numpy.random.normal(numpy.mean(attack_observation[: size]), 0.1, size)
             elif self.attack_type == ATTACK_TYPE.Zerout:
                 attack_observation[0: size - 1] = 0
+            elif self.attack_type == ATTACK_TYPE.AddNoise: ### add small observational noise
+                add_noise_level = 0.2
+                attack_observation += numpy.random.normal(add_noise_level, 0.05, size)
 
         return numpy.array(attack_observation)
