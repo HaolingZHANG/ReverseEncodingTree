@@ -4,8 +4,8 @@ from enum import Enum
 import numpy
 
 
-# noinspection PyPep8Naming
 class ATTACK_TYPE(Enum):
+    Normal = 0
     Reverse = 1
     GaussianAvg = 2
     Zerout = 3

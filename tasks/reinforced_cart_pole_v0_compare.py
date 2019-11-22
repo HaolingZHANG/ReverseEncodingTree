@@ -10,11 +10,25 @@ from utils.operator import Operator
 environment = gym.make("CartPole-v0").unwrapped
 
 
-def start_normal():
-    reinforced_cart_pole_v0.start_normal()
+def start_normal(need_play=True):
+    """
+    run CartPole-v0 by GS-NEAT.
+
+    :param need_play: if needs play after train.
+
+    :return: the operator.
+    """
+    return reinforced_cart_pole_v0.start_normal(need_play)
 
 
-def start_bi():
+def start_bi(max_generation, need_play=True):
+    """
+    run CartPole-v0 by GS-NEAT.
+
+    :param need_play: if needs play after train.
+
+    :return: the operator.
+    """
     # load configuration.
     config = neat.Config(genome.GlobalGenome, bi.Reproduction,
                          species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -27,16 +41,28 @@ def start_bi():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        checkpoint=6, stdout=True, output_path="../output/")
+                        generations=max_generation, checkpoint=6, stdout=False, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="CartPole-v0.bi")
+    if need_play:
+        operator.display_genome(filename="CartPole-v0.bi")
+
+    # return operator if need other operations
+    return operator
 
 
-def start_gs():
+def start_gs(need_play=True):
+    """
+    run CartPole-v0 by GS-NEAT.
+
+    :param need_play: if needs play after train.
+
+    :return: the operator.
+    """
+
     # load configuration.
     config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                          species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -55,10 +81,22 @@ def start_gs():
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="CartPole-v0.gs")
+    if need_play:
+        operator.display_genome(filename="CartPole-v0.gs")
+
+    # return operator if need other operations
+    return operator
 
 
-def start_tri():
+def start_tri(need_play=True):
+    """
+    run CartPole-v0 by Tri-NEAT.
+
+    :param need_play: if needs play after train.
+
+    :return: the operator.
+    """
+
     # load configuration.
     config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                          species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -71,17 +109,45 @@ def start_tri():
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
-                        checkpoint=8, stdout=True, output_path="../output/")
+                        checkpoint=8, stdout=False, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
     # display the winning genome.
-    operator.display_genome(filename="CartPole-v0.tri")
+    if need_play:
+        operator.display_genome(filename="CartPole-v0.tri")
+
+    # return operator if need other operations
+    return operator
 
 
 if __name__ == '__main__':
-    # start_normal()
-    # start_bi()
-    start_gs()
-    # start_tri()
+    generations = []
+    s_count = 0
+    for i in range(1000):
+        try:
+            o = start_bi(max_generation=500, need_play=False)
+            g, s = o.get_actual_generation()
+            if s:
+                generations.append(g)
+            else:
+                s_count += 1
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            print("procession: " + str(i + 1))
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        except Exception:
+            i -= 1
+
+    print("generations:")
+    print(generations)
+
+    max_value = max(generations)
+    counts = [0 for i in range(max_value + 1)]
+    for generation in generations:
+        counts[generation] += 1
+
+    print("counts:")
+    print(counts)
+    print("obtain failed:")
+    print(s_count)
