@@ -1,12 +1,20 @@
 import datetime
 import logging
+import pickle
+from enum import Enum
+
 import neat
 import numpy
 from evolution_process.evolutor import LEARN_TYPE
 from utils import visualize
 
 
-# noinspection PyMethodMayBeStatic
+class REPORTER_TYPE(Enum):
+    Statistic = 1
+    Stdout = 2
+    Checkpoint = 3
+
+
 class Operator(object):
 
     def __init__(self, config, fitter, node_names,
@@ -28,14 +36,18 @@ class Operator(object):
         # create the population by configuration, which is the top-level object for a NEAT tasks.
         self._population = neat.Population(self._config)
 
-        # create the statistics reporter.
-        self._reporter = neat.StatisticsReporter()
+        # create the check point reporter.
+        self._checkpoint_reporter = neat.Checkpointer(generation_interval=checkpoint,
+                                                      filename_prefix=output_path + "neat-checkpoint-")
+        self._population.add_reporter(self._checkpoint_reporter)
 
-        # add requested reporters.
-        self._population.add_reporter(neat.StdOutReporter(stdout))
-        self._population.add_reporter(neat.Checkpointer(generation_interval=checkpoint,
-                                                        filename_prefix=output_path + "neat-checkpoint-"))
-        self._population.add_reporter(self._reporter)
+        # create the stdout reporter.
+        self._stdout_reporter = neat.StdOutReporter(stdout)
+        self._population.add_reporter(self._stdout_reporter)
+
+        # create the statistics reporter.
+        self._statistics_reporter = neat.StatisticsReporter()
+        self._population.add_reporter(self._statistics_reporter)
 
         self._fitter = fitter
         self._node_names = node_names
@@ -44,16 +56,27 @@ class Operator(object):
 
         # best genome after training.
         self._winner = None
+        self._obtain_success = False
 
     def obtain_winner(self):
         """
         Obtain the winning genome (network).
         """
         self._winner = self._population.run(self._fitter.genomes_fitness, self._generations)
+        if self._winner.fitness >= self._config.fitness_threshold:
+            self._obtain_success = True
 
-    def get_winning_network(self):
+    def get_best_genome(self):
         """
-        Get the winning network.
+        get best genome.
+
+        :return: best network.
+        """
+        return self._winner
+
+    def get_best_network(self):
+        """
+        get the winning network.
 
         :return: generated network.
         """
@@ -61,13 +84,22 @@ class Operator(object):
             logging.error("Please obtain winner first!")
         return self._fitter.generated_network(self._winner, self._config)
 
-    def get_reporter(self):
+    def get_reporter(self, reporter_type=None):
         """
-        Get the statistic reporter.
+        get the choose reporter.
 
         :return: reporter.
         """
-        return self._reporter
+        if reporter_type == REPORTER_TYPE.Statistic:
+            return self._statistics_reporter
+        elif reporter_type == REPORTER_TYPE.Stdout:
+            return self._stdout_reporter
+        elif reporter_type == REPORTER_TYPE.Checkpoint:
+            return self._checkpoint_reporter
+
+        return {"statistics": self._statistics_reporter,
+                "stdout": self._stdout_reporter,
+                "checkpoint": self._checkpoint_reporter}
 
     def display_genome(self, filename, node_names=None, genome=None, config=None, reporter=None):
         """
@@ -86,7 +118,7 @@ class Operator(object):
         if config is None:
             config = self._config
         if reporter is None:
-            reporter = self._reporter
+            reporter = self._statistics_reporter
 
         visualize.draw_network(config, genome, True, node_names=node_names,
                                parent_path=self._output_path, filename=filename)
@@ -121,7 +153,7 @@ class Operator(object):
             return right, len(dataset.get("o"))
 
         elif self._fitter.learn_type == LEARN_TYPE.Reinforced:
-            network = self.get_winning_network()
+            network = self.get_best_network()
             start_time = datetime.datetime.now()
             while True:
                 observation = environment.reset()
@@ -137,3 +169,39 @@ class Operator(object):
                     break
 
             return None
+
+    def get_actual_generation(self):
+        """
+        get actual generation from stdout reporter.
+
+        :return: actual generation and whether obtain success.
+        """
+        return self._stdout_reporter.generation, self._obtain_success
+
+    def save_best_genome(self, path):
+        """
+        save the best genome by file.
+
+        :param path: file path.
+        """
+        with open(path, "wb") as file:
+            pickle.dump(self._winner, file)
+
+    def save_best_network(self, path):
+        """
+        save the network created by best genome to file.
+
+        :param path: file path.
+        """
+        with open(path, "wb") as file:
+            pickle.dump(self.get_best_network(), file)
+
+    def load_best_genome(self, path):
+        """
+        load best genome from file.
+
+        :param path: file path.
+        """
+        with open(path, "rb") as file:
+            self._winner = pickle.load(file)
+

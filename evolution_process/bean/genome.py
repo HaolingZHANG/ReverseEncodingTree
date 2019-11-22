@@ -314,7 +314,7 @@ class GlobalGenome(neat.DefaultGenome):
 
         :param config:genome config.
         """
-        if config.max_node_num - config.num_inputs > len(self.nodes):
+        if config.max_node_num - config.num_inputs - config.num_outputs > len(self.nodes):
             super().mutate_add_node(config)
 
     def __str__(self):

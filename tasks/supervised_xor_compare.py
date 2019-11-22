@@ -12,14 +12,14 @@ xor_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
 xor_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
 
 
-def start_normal():
-    supervised_xor.start_normal()
+def start_normal(max_generation, need_play=False):
+    return supervised_xor.start_normal(max_generation, need_play)
 
 
-def start_bi():
+def start_bi(max_generation, need_play=False):
     # load configuration.
     config = neat.Config(genome.GlobalGenome, bi.Reproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         species_set.StrongSpeciesSet, neat.DefaultStagnation,
                          "../configures/task.bi.xor")
 
     # load evolution process.
@@ -28,16 +28,20 @@ def start_bi():
 
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter, node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
-                        checkpoint=51, stdout=True, output_path="../output/")
+                        generations=max_generation, checkpoint=51, stdout=False, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
-    # display the winning genome.
-    operator.display_genome(filename="xor.bi")
+    if need_play:
+        # display the winning genome.
+        operator.display_genome(filename="xor.bi")
+
+    # return operator if need other operations
+    return operator
 
 
-def start_gs():
+def start_gs(max_generation, need_play=False):
     # load configuration.
     config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                          species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -49,16 +53,17 @@ def start_gs():
 
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter, node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
-                        checkpoint=52, stdout=True, output_path="../output/")
+                        generations=max_generation, checkpoint=52, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
-    # display the winning genome.
-    operator.display_genome(filename="xor.gs")
+    if need_play:
+        # display the winning genome.
+        operator.display_genome(filename="xor.gs")
 
 
-def start_tri():
+def start_tri(max_generation, need_play=False):
     # load configuration.
     config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                          species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -70,17 +75,45 @@ def start_tri():
 
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter, node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
-                        checkpoint=53, stdout=True, output_path="../output/")
+                        generations=max_generation, checkpoint=53, stdout=True, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
 
-    # display the winning genome.
-    operator.display_genome(filename="xor.tri")
+    if need_play:
+        # display the winning genome.
+        operator.display_genome(filename="xor.tri")
+
+    # return operator if need other operations
+    return operator
 
 
 if __name__ == '__main__':
-    # start_normal()
-    # start_bi()
-    start_gs()
-    # start_tri()
+    generations = []
+    s_count = 0
+    for i in range(1000):
+        try:
+            o = start_bi(max_generation=500, need_play=False)
+            g, s = o.get_actual_generation()
+            if s:
+                generations.append(g)
+            else:
+                s_count += 1
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            print("procession: " + str(i + 1))
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        except Exception:
+            i -= 1
+
+    print("generations:")
+    print(generations)
+
+    max_value = max(generations)
+    counts = [0 for i in range(max_value + 1)]
+    for generation in generations:
+        counts[generation] += 1
+
+    print("counts:")
+    print(counts)
+    print("obtain failed:")
+    print(s_count)
