@@ -44,15 +44,15 @@ class CartPole_v0_Attacker(object):
         attack_observation = copy.deepcopy(original_observation)
         if need_attack:
             size = len(attack_observation)
-            if self.attack_type == ATTACK_TYPE.Reverse:
+            if self.attack_type == ATTACK_TYPE.Normal:
+                add_noise_level = 0.2
+                attack_observation += numpy.random.normal(add_noise_level, 0.05, size)
+            elif self.attack_type == ATTACK_TYPE.Reverse:
                 # reverse the ray tracer, but the keep the 2-dim velocity
                 attack_observation = attack_observation[::-1][: size]
             elif self.attack_type == ATTACK_TYPE.GaussianAvg:
                 numpy.random.normal(numpy.mean(attack_observation[: size]), 0.1, size)
             elif self.attack_type == ATTACK_TYPE.Zerout:
                 attack_observation[0: size - 1] = 0
-            elif self.attack_type == ATTACK_TYPE.AddNoise: ### add small observational noise
-                add_noise_level = 0.2
-                attack_observation += numpy.random.normal(add_noise_level, 0.05, size)
 
         return numpy.array(attack_observation)
