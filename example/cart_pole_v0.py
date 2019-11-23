@@ -4,6 +4,16 @@ import neat
 from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT
 from utils.operator import Operator
 
+has_environment = False
+for environment_space in gym.envs.registry.all():
+    if "CartPole-v0" in environment_space.id:
+        has_environment = True
+        break
+
+if not has_environment:
+    raise Exception("no environment named CartPole-v0.")
+
+
 environment = gym.make("CartPole-v0").unwrapped
 
 
@@ -14,8 +24,9 @@ if __name__ == '__main__':
                          "../configures/example/cart-pole-v0")
 
     # load evolution process.
-    fitter = FitDevice(FitProcess(), input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
-    fitter.set_environment(environment=environment, episode_steps=300, episode_generation=10)
+    fitter = FitDevice(FitProcess())
+    fitter.set_environment(environment=environment, episode_steps=300, episode_generation=10,
+                           input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
 
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
@@ -28,4 +39,4 @@ if __name__ == '__main__':
     # display the winning genome.
     operator.display_genome(filename="example.CartPole-v0.fs")
     # evaluate the NeuroEvolution.
-    operator.evaluation(environment=environment)
+    operator.evaluation(environment=environment, input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)

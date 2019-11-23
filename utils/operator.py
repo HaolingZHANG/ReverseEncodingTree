@@ -172,6 +172,8 @@ class Operator(object):
                 attack_count = 0
                 total_count = 0
                 while True:
+                    environment.render()
+
                     # set attack if has attack.
                     if has_attack and random.randint(0, 100) < noise_level * 100:
                         if type(observation) is not numpy.ndarray:

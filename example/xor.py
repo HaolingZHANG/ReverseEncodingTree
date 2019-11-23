@@ -16,8 +16,7 @@ def start_fs(max_generation, need_play=False):
                          "../configures/example/xor")
 
     # load evolution process.
-    fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance),
-                       input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+    fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
     fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
 
     # initialize the NeuroEvolution
