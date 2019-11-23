@@ -1,11 +1,12 @@
 import datetime
 import logging
 import pickle
+import random
 from enum import Enum
 
 import neat
 import numpy
-from evolution_process.evolutor import LEARN_TYPE
+from evolution_process.evolutor import LEARN_TYPE, TYPE_CORRECT
 from utils import visualize
 
 
@@ -130,12 +131,18 @@ class Operator(object):
         visualize.plot_species(reporter, show=True,
                                parent_path=self._output_path, filename=filename)
 
-    def evaluation(self, dataset=None, environment=None, run_minutes=1):
+    def evaluation(self, dataset=None, environment=None,
+                   input_type=None, output_type=None, attacker=None, noise_level=None,
+                   run_minutes=1):
         """
-        Evaluate the network by testing dataset or environment.
+        evaluate the network by testing dataset or environment.
 
         :param dataset: testing dataset in Supervised Learning.
         :param environment: environment in Reinforcement Learning.
+        :param input_type: type of input, TYPE_CORRECT.List or TYPE_CORRECT.Value.
+        :param output_type: type of output, TYPE_CORRECT.List or TYPE_CORRECT.Value.
+        :param attacker: noise attacker for observation.
+        :param noise_level: noise level of attacker.
         :param run_minutes: running minutes in Reinforcement Learning.
         :return: result in Supervised Learning.
         """
@@ -156,17 +163,48 @@ class Operator(object):
             return right, len(dataset.get("o"))
 
         elif self._fitter.learn_type == LEARN_TYPE.Reinforced:
+            has_attack = attacker is not None and noise_level is not None
+
             network = self.get_best_network()
             start_time = datetime.datetime.now()
             while True:
                 observation = environment.reset()
+                attack_count = 0
+                total_count = 0
                 while True:
-                    environment.render()
-                    action_values = network.activate(observation)
+                    # set attack if has attack.
+                    if has_attack and random.randint(0, 100) < noise_level * 100:
+                        if type(observation) is not numpy.ndarray:
+                            observation = numpy.array([observation])
+                        actual_observation = attacker.attack(observation)
+                        attack_count += 1
+                    else:
+                        actual_observation = observation
+
+                    # check input type
+                    if input_type == TYPE_CORRECT.List and type(actual_observation) is not numpy.ndarray:
+                        actual_observation = numpy.array([actual_observation])
+                    if input_type == TYPE_CORRECT.Value and type(actual_observation) is numpy.ndarray:
+                        actual_observation = actual_observation[0]
+
+                    action_values = network.activate(actual_observation)
                     action = numpy.argmax(action_values)
+
+                    # check output type
+                    if output_type == TYPE_CORRECT.List and type(action) is not numpy.ndarray:
+                        action = numpy.array([action])
+                    if output_type == TYPE_CORRECT.Value and type(action) is numpy.ndarray:
+                        action = action[0]
+
                     _, _, done, _ = environment.step(action)
+
                     if done:
+                        if has_attack:
+                            print("with: ", round(attack_count / float(total_count + 1), 2), "% attack.")
                         break
+
+                    total_count += 1
+
                 if (datetime.datetime.now() - start_time).seconds > run_minutes * 60:
                     environment.close()
                     break

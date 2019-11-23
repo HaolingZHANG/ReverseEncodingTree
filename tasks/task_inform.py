@@ -26,8 +26,7 @@ class XOR(object):
         xor_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
 
         # load evolution process.
-        fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance),
-                           input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+        fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
         fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
 
         # load configuration.
@@ -102,8 +101,9 @@ class CartPole_v0(object):
                  max_generation, display_results=False, checkpoint=-1, stdout=False):
 
         # load evolution process.
-        fitter = FitDevice(FitProcess(), input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+        fitter = FitDevice(FitProcess())
         fitter.set_environment(environment=gym.make("CartPole-v0").unwrapped,
+                               input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
                                episode_steps=episode_steps, episode_generation=episode_generation)
 
         # load configuration.

@@ -30,13 +30,11 @@ class TYPE_CORRECT(Enum):
 
 class FitDevice(object):
 
-    def __init__(self, method, input_type, output_type, network_type=NET_TYPE.FeedForward):
+    def __init__(self, method, network_type=NET_TYPE.FeedForward):
         """
         Initialize the evolution_process calculation and type of network.
 
         :param method: evolution process, see /evolution_process/methods/
-        :param input_type:
-        :param output_type:
         :param network_type: type of network created by genome.
         """
         logging.info("Initialize the evolution process calculation.")
@@ -50,20 +48,24 @@ class FitDevice(object):
         self.environment = None
         self.episode_steps = None
         self.episode_generation = None
+        self.input_type = None
+        self.output_type = None
         self.attacker = None
         self.noise_level = None
-        self.input_type = input_type
-        self.output_type = output_type
 
-    def set_environment(self, environment, episode_steps, episode_generation, attacker=None, noise_level=None):
+    def set_environment(self, environment, episode_steps, episode_generation,
+                        input_type, output_type,
+                        attacker=None, noise_level=None):
         """
         Set the environment of Reinforcement Learning in gym library.
 
         :param environment: environment of Reinforcement Learning in gym library.
         :param episode_steps: maximum episode steps.
-        :param episode_generation: evaluate by the minimum of episode rewards
-        :param attacker:
-        :param noise_level:
+        :param episode_generation: evaluate by the minimum of episode rewards.
+        :param input_type: type of input, TYPE_CORRECT.List or TYPE_CORRECT.Value.
+        :param output_type: type of output, TYPE_CORRECT.List or TYPE_CORRECT.Value.
+        :param attacker: noise attacker for observation.
+        :param noise_level: noise level of attacker.
         """
         logging.info("Obtain the environment.")
         if self.dataset is None:
@@ -71,6 +73,8 @@ class FitDevice(object):
             self.episode_steps = episode_steps
             self.episode_generation = episode_generation
             self.learn_type = LEARN_TYPE.Reinforced
+            self.input_type = input_type
+            self.output_type = output_type
             self.attacker = attacker
             self.noise_level = noise_level
         elif self.learn_type is None:
@@ -150,19 +154,22 @@ class FitDevice(object):
             attack_count = 0
             observation = self.environment.reset()
             for step in range(self.episode_steps):
-                # check input type
-                if self.input_type == TYPE_CORRECT.List and type(observation) is not numpy.ndarray:
-                    observation = numpy.array([observation])
-                if self.input_type == TYPE_CORRECT.Value and type(observation) is numpy.ndarray:
-                    observation = observation[0]
-
                 # set attack if has attack.
                 if has_attack and random.randint(0, 100) < self.noise_level * 100:
-                    attack_observation = self.attacker.attack(observation)
-                    action_values = network.activate(attack_observation)
+                    if type(observation) is not numpy.ndarray:
+                        observation = numpy.array([observation])
+                    actual_observation = self.attacker.attack(observation)
                     attack_count += 1
                 else:
-                    action_values = network.activate(observation)
+                    actual_observation = observation
+
+                # check input type
+                if self.input_type == TYPE_CORRECT.List and type(actual_observation) is not numpy.ndarray:
+                    actual_observation = numpy.array([actual_observation])
+                if self.input_type == TYPE_CORRECT.Value and type(actual_observation) is numpy.ndarray:
+                    actual_observation = actual_observation[0]
+
+                action_values = network.activate(actual_observation)
                 action = numpy.argmax(action_values)
 
                 # check output type
