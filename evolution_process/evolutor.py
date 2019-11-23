@@ -7,32 +7,36 @@ import logging
 import neat
 
 
-# noinspection PyPep8Naming
 class LEARN_TYPE(Enum):
     Supervised = 1
     Reinforced = 2
 
 
-# noinspection PyPep8Naming
 class NET_TYPE(Enum):
     FeedForward = 1
     Recurrent = 2
 
 
-# noinspection PyPep8Naming
 class EVAL_TYPE(Enum):
     EulerDistance = 1
     HammingDistance = 2
     ManhattanDistance = 3
 
 
+class TYPE_CORRECT(Enum):
+    List = 1
+    Value = 2
+
+
 class FitDevice(object):
 
-    def __init__(self, method, network_type=NET_TYPE.FeedForward):
+    def __init__(self, method, input_type, output_type, network_type=NET_TYPE.FeedForward):
         """
         Initialize the evolution_process calculation and type of network.
 
         :param method: evolution process, see /evolution_process/methods/
+        :param input_type:
+        :param output_type:
         :param network_type: type of network created by genome.
         """
         logging.info("Initialize the evolution process calculation.")
@@ -48,6 +52,8 @@ class FitDevice(object):
         self.episode_generation = None
         self.attacker = None
         self.noise_level = None
+        self.input_type = input_type
+        self.output_type = output_type
 
     def set_environment(self, environment, episode_steps, episode_generation, attacker=None, noise_level=None):
         """
@@ -144,6 +150,12 @@ class FitDevice(object):
             attack_count = 0
             observation = self.environment.reset()
             for step in range(self.episode_steps):
+                # check input type
+                if self.input_type == TYPE_CORRECT.List and type(observation) is not numpy.ndarray:
+                    observation = numpy.array([observation])
+                if self.input_type == TYPE_CORRECT.Value and type(observation) is numpy.ndarray:
+                    observation = observation[0]
+
                 # set attack if has attack.
                 if has_attack and random.randint(0, 100) < self.noise_level * 100:
                     attack_observation = self.attacker.attack(observation)
@@ -152,8 +164,16 @@ class FitDevice(object):
                 else:
                     action_values = network.activate(observation)
                 action = numpy.argmax(action_values)
+
+                # check output type
+                if self.output_type == TYPE_CORRECT.List and type(action) is not numpy.ndarray:
+                    action = numpy.array([action])
+                if self.output_type == TYPE_CORRECT.Value and type(action) is numpy.ndarray:
+                    action = action[0]
+
                 current_observation, reward, done, _ = self.environment.step(action)
                 accumulative_recorder += reward
+
                 if done:
                     if has_attack:
                         print("with: ", round(attack_count / float(step + 1), 2), "% attack.")

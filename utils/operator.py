@@ -18,14 +18,14 @@ class REPORTER_TYPE(Enum):
 class Operator(object):
 
     def __init__(self, config, fitter, node_names,
-                 generations=None, checkpoint=0, stdout=True, output_path=None):
+                 max_generation=None, checkpoint=-1, stdout=False, output_path=None):
         """
         Initialize the operator of NeuroEvolution.
 
         :param config: configures of NEAT.
         :param fitter: fitter of NEAT.
         :param node_names: node information for display the obtained network.
-        :param generations: generations (iteration times).
+        :param max_generation: generations (iteration times).
         :param checkpoint: the point to save the current state.
         :param output_path: parent path for save file of displaying the genome and checkpoint.
         :param stdout: whether output the log.
@@ -33,26 +33,29 @@ class Operator(object):
         # load configuration.
         self._config = config
 
+        self._fitter = fitter
+        self._node_names = node_names
+        self._max_generation = max_generation
+        self._output_path = output_path
+
         # create the population by configuration, which is the top-level object for a NEAT tasks.
         self._population = neat.Population(self._config)
 
-        # create the check point reporter.
-        self._checkpoint_reporter = neat.Checkpointer(generation_interval=checkpoint,
-                                                      filename_prefix=output_path + "neat-checkpoint-")
-        self._population.add_reporter(self._checkpoint_reporter)
+        self._checkpoint = checkpoint
+        if self._checkpoint >= 0:
+            # create the check point reporter.
+            self._checkpoint_reporter = neat.Checkpointer(generation_interval=checkpoint,
+                                                          filename_prefix=output_path + "neat-checkpoint-")
+            self._population.add_reporter(self._checkpoint_reporter)
 
         # create the stdout reporter.
+        self._stdout = stdout
         self._stdout_reporter = neat.StdOutReporter(stdout)
         self._population.add_reporter(self._stdout_reporter)
 
         # create the statistics reporter.
         self._statistics_reporter = neat.StatisticsReporter()
         self._population.add_reporter(self._statistics_reporter)
-
-        self._fitter = fitter
-        self._node_names = node_names
-        self._generations = generations
-        self._output_path = output_path
 
         # best genome after training.
         self._winner = None
@@ -62,7 +65,7 @@ class Operator(object):
         """
         Obtain the winning genome (network).
         """
-        self._winner = self._population.run(self._fitter.genomes_fitness, self._generations)
+        self._winner = self._population.run(self._fitter.genomes_fitness, self._max_generation)
         if self._winner.fitness >= self._config.fitness_threshold:
             self._obtain_success = True
 
@@ -205,3 +208,24 @@ class Operator(object):
         with open(path, "rb") as file:
             self._winner = pickle.load(file)
 
+    def reset(self):
+        # re-create the population by configuration, which is the top-level object for a NEAT tasks.
+        self._population = neat.Population(self._config)
+
+        if self._checkpoint >= 0:
+            # create the check point reporter.
+            self._checkpoint_reporter = neat.Checkpointer(generation_interval=self._checkpoint,
+                                                          filename_prefix=self._output_path + "neat-checkpoint-")
+            self._population.add_reporter(self._checkpoint_reporter)
+
+        # create the stdout reporter.
+        self._stdout_reporter = neat.StdOutReporter(self._stdout)
+        self._population.add_reporter(self._stdout_reporter)
+
+        # create the statistics reporter.
+        self._statistics_reporter = neat.StatisticsReporter()
+        self._population.add_reporter(self._statistics_reporter)
+
+        # best genome after training.
+        self._winner = None
+        self._obtain_success = False
