@@ -38,5 +38,7 @@ if __name__ == '__main__':
 
     # display the winning genome.
     operator.display_genome(filename="example.CartPole-v0.fs")
+
     # evaluate the NeuroEvolution.
-    operator.evaluation(environment=environment, input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+    operator.evaluation(environment=environment,
+                        input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
