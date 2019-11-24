@@ -23,12 +23,12 @@ if __name__ == '__main__':
     # load evolution process.
     fitter = FitDevice(FitProcess())
 
-    fitter.set_environment(environment=environment, episode_steps=1000, episode_generation=5,
+    fitter.set_environment(environment=environment, episode_steps=300, episode_generation=10,
                            input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
 
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
-                        node_names={-1: 'cos(theta)', 0: 'action'},
+                        node_names={-1: 'state', 0: 'action'},
                         max_generation=500, output_path="../output/")
 
     # obtain the winning genome.
