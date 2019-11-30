@@ -38,19 +38,19 @@ class Logic(object):
         if logic_type == LOGIC_TYPE.NAND:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(1.0,), (1.0,), (1.0,), (0.0,)]
-            self.filename = "NAND."
+            self.filename = "nand."
         elif logic_type == LOGIC_TYPE.NOR:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
-            self.filename = "NOR."
+            self.filename = "nor."
         elif logic_type == LOGIC_TYPE.IMPLY:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(1.0,), (1.0,), (0.0,), (1.0,)]
-            self.filename = "IMPLY."
+            self.filename = "imply."
         elif logic_type == LOGIC_TYPE.XOR:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
-            self.filename = "XOR."
+            self.filename = "xor."
 
         # load evolution process.
         fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
@@ -61,22 +61,22 @@ class Logic(object):
         if method_type == METHOD_TYPE.FS:
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/nand.fs")
+                                 "../configures/task/logic.fs")
             self.filename += "fs"
         elif method_type == METHOD_TYPE.BI:
             config = neat.Config(genome.GlobalGenome, bi.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/nand.bi")
+                                 "../configures/task/logic.bi")
             self.filename += "bi"
         elif method_type == METHOD_TYPE.GS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/nand.gs")
+                                 "../configures/task/logic.gs")
             self.filename += "gs"
         elif method_type == METHOD_TYPE.TRI:
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/nand.tri")
+                                 "../configures/task/logic.tri")
             self.filename += "tri"
 
         # initialize the NeuroEvolution
