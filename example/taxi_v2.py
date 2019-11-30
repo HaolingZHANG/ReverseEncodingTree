@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # initialize the NeuroEvolution
     operator = Operator(config=config, fitter=fitter,
                         node_names={-1: 'state', 0: 'action'},
-                        max_generation=500, output_path="../output/")
+                        output_path="../output/", stdout=True)
 
     # obtain the winning genome.
     operator.obtain_winner()
@@ -37,6 +37,6 @@ if __name__ == '__main__':
     # display the winning genome.
     operator.display_genome(filename="example.Taxi-v2.fs")
 
-    # evaluate the NeuroEvolution.
-    operator.evaluation(environment=environment,
-                        input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+    # # evaluate the NeuroEvolution.
+    # operator.evaluation(environment=environment,
+    #                     input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)

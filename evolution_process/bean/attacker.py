@@ -13,7 +13,7 @@ class ATTACK_TYPE(Enum):
 
 class CartPole_v0_Attacker(object):
 
-    def __init__(self, current_state=False, beta=0.25, epsilon=0.3, attack_type=ATTACK_TYPE.Reverse):
+    def __init__(self, current_state=False, beta=0.25, epsilon=0.3, attack_type=ATTACK_TYPE.Normal):
         """
         initialize attacker for the game name CartPole v0.
 

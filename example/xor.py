@@ -26,6 +26,6 @@ if __name__ == '__main__':
     # obtain the winning genome.
     operator.obtain_winner()
 
-
     # display the winning genome.
     operator.display_genome(filename="example.xor.fs")
+

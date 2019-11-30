@@ -1,7 +1,7 @@
 # neat-python configuration for the LunarLander-v2 environment on OpenAI Gym #
 
 [NEAT]
-pop_size              = 2
+pop_size              = 3
 fitness_criterion     = max
 fitness_threshold     = 1.
 reset_on_extinction   = 0

@@ -16,45 +16,72 @@ class METHOD_TYPE(Enum):
     TRI = 3
 
 
-class XOR(object):
+class LOGIC_TYPE(Enum):
+    NAND = 1
+    NOR = 2
+    IMPLY = 3
+    XOR = 4
 
-    def __init__(self, method_type,
+
+class GAME_TYPE(Enum):
+    CartPole_v0 = 0
+
+
+class Logic(object):
+
+    def __init__(self, method_type, logic_type,
                  max_generation, display_results=False, checkpoint=-1, stdout=False):
 
-        # 2-input XOR inputs and expected outputs.
-        xor_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
-        xor_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
+        data_inputs = None
+        data_outputs = None
+
+        if logic_type == LOGIC_TYPE.NAND:
+            data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+            data_outputs = [(1.0,), (1.0,), (1.0,), (0.0,)]
+            self.filename = "NAND."
+        elif logic_type == LOGIC_TYPE.NOR:
+            data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+            data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
+            self.filename = "NOR."
+        elif logic_type == LOGIC_TYPE.IMPLY:
+            data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+            data_outputs = [(1.0,), (1.0,), (0.0,), (1.0,)]
+            self.filename = "IMPLY."
+        elif logic_type == LOGIC_TYPE.XOR:
+            data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+            data_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
+            self.filename = "XOR."
 
         # load evolution process.
         fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
-        fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
+        fitter.set_dataset({"i": data_inputs, "o": data_outputs})
 
         # load configuration.
         config = None
         if method_type == METHOD_TYPE.FS:
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/xor.fs")
-            self.filename = "XOR.fs"
+                                 "../configures/task/nand.fs")
+            self.filename += "fs"
         elif method_type == METHOD_TYPE.BI:
             config = neat.Config(genome.GlobalGenome, bi.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/xor.bi")
-            self.filename = "XOR.bi"
+                                 "../configures/task/nand.bi")
+            self.filename += "bi"
         elif method_type == METHOD_TYPE.GS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/xor.gs")
-            self.filename = "XOR.gs"
+                                 "../configures/task/nand.gs")
+            self.filename += "gs"
         elif method_type == METHOD_TYPE.TRI:
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/xor.tri")
-            self.filename = "XOR.tri"
+                                 "../configures/task/nand.tri")
+            self.filename += "tri"
 
         # initialize the NeuroEvolution
         self.operator = Operator(config=config, fitter=fitter,
-                                 node_names={-1: 'A', -2: 'B', 0: 'A XOR B'},
+                                 node_names={-1: 'A', -2: 'B', 0: 'A operate B'},
                                  max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
                                  output_path="../output/")
 
@@ -65,24 +92,35 @@ class XOR(object):
 
     def run(self, times):
         generations = []
-        for time in range(times):
-            if times > 1:
-                # print current times.
-                print()
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                print("procession time: " + str(time + 1))
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                print()
+        time = 0
+        while True:
+            try:
+                if times > 1:
+                    # print current times.
+                    print()
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print("procession time: " + str(time + 1))
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print()
 
-            self.operator.obtain_winner()
-            actual_generation, fit = self.operator.get_actual_generation()
-            if not fit:
-                time -= 1
-                continue
-            generations.append(actual_generation)
+                self.operator.obtain_winner()
+                actual_generation, fit = self.operator.get_actual_generation()
+                if not fit:
+                    # reset the hyper-parameters
+                    self.operator.reset()
+                    continue
+                generations.append(actual_generation)
 
-            # reset the hyper-parameters
-            self.operator.reset()
+                # reset the hyper-parameters
+                self.operator.reset()
+
+                time += 1
+
+                if time >= times:
+                    break
+            except Exception or ValueError:
+                print("something error.")
+                self.operator.reset()
 
         counts = [0 for _ in range(self.max_generation + 1)]
         for generation in generations:
@@ -94,15 +132,19 @@ class XOR(object):
         return generations, counts
 
 
-class CartPole_v0(object):
+class Game(object):
 
-    def __init__(self, method_type,
+    def __init__(self, method_type, game_type,
                  episode_steps, episode_generation,
                  max_generation, display_results=False, checkpoint=-1, stdout=False):
 
+        game_environemnt = None
+        if game_type == GAME_TYPE.CartPole_v0:
+            game_environemnt = gym.make("CartPole-v0").unwrapped
+
         # load evolution process.
         fitter = FitDevice(FitProcess())
-        fitter.set_environment(environment=gym.make("CartPole-v0").unwrapped,
+        fitter.set_environment(environment=game_environemnt,
                                input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
                                episode_steps=episode_steps, episode_generation=episode_generation)
 
@@ -142,24 +184,36 @@ class CartPole_v0(object):
 
     def run(self, times):
         generations = []
-        for time in range(times):
-            if times > 1:
-                # print current times.
-                print()
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                print("procession time: " + str(time + 1))
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                print()
+        time = 0
+        while True:
+            try:
+                if times > 1:
+                    # print current times.
+                    print()
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print("procession time: " + str(time + 1))
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print()
 
-            self.operator.obtain_winner()
-            actual_generation, fit = self.operator.get_actual_generation()
-            if not fit:
-                time -= 1
-                continue
-            generations.append(actual_generation)
+                self.operator.obtain_winner()
+                actual_generation, fit = self.operator.get_actual_generation()
+                if not fit:
+                    # reset the hyper-parameters
+                    self.operator.reset()
+                    continue
+                generations.append(actual_generation)
 
-            # reset the hyper-parameters
-            self.operator.reset()
+                # reset the hyper-parameters
+                self.operator.reset()
+
+                time += 1
+
+                if time >= times:
+                    break
+            except Exception or ValueError:
+                print("something error.")
+                self.operator.reset()
+
         counts = [0 for _ in range(self.max_generation + 1)]
         for generation in generations:
             counts[generation] += 1

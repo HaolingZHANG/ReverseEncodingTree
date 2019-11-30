@@ -249,8 +249,13 @@ class Operator(object):
             self._winner = pickle.load(file)
 
     def reset(self):
-        # re-create the population by configuration, which is the top-level object for a NEAT tasks.
-        self._population = neat.Population(self._config)
+        while True:
+            try:
+                # re-create the population by configuration, which is the top-level object for a NEAT tasks.
+                self._population = neat.Population(self._config)
+                break
+            except Exception:
+                print("re-create again!")
 
         if self._checkpoint >= 0:
             # create the check point reporter.

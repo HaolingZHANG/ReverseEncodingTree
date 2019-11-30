@@ -2,7 +2,7 @@
 
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 3.9999
+fitness_threshold     = 3.99999
 pop_size              = 10
 reset_on_extinction   = False
 
@@ -81,4 +81,3 @@ survival_threshold = 0.2
 init_distance      = 7
 min_distance       = 0.1
 search_count       = 30
-theta              = 5

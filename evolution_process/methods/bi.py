@@ -4,6 +4,7 @@ Name: NEAT evoluted by Binary Search
 Function(s):
 Reproduction by Binary Search and Random Near Search.
 """
+import random
 
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
@@ -15,7 +16,10 @@ class Reproduction(DefaultReproduction):
 
     def __init__(self, config, reporters, stagnation):
         super().__init__(config, reporters, stagnation)
+        self.stagnate = 0
+        self.last_best_fitness = None
         self.genome_config = None
+        self.genome_type = None
 
     @classmethod
     def parse_config(cls, param_dict):
@@ -32,7 +36,8 @@ class Reproduction(DefaultReproduction):
                                    ConfigParameter('min_species_size', int, 2),
                                    ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
-                                   ConfigParameter('search_count', int, 1)])
+                                   ConfigParameter('search_count', int, 1),
+                                   ConfigParameter('theta', int, 50)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -49,6 +54,7 @@ class Reproduction(DefaultReproduction):
             raise Exception("config: max_node_num must larger than num_inputs + num_outputs + num_hidden")
 
         self.genome_config = genome_config
+        self.genome_type = genome_type
 
         new_genomes = {}
         distance_matrix = [[float("inf") for _ in range(num_genomes - 1)] for _ in range(num_genomes - 1)]
@@ -105,11 +111,15 @@ class Reproduction(DefaultReproduction):
         self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
 
         # sort members in order of descending fitness.
-        current_genomes.sort(reverse=True, key=lambda x: x.fitness)
+        current_genomes.sort(reverse=True, key=lambda g: g.fitness)
+
+        if self.last_best_fitness is not None and abs(current_genomes[0].fitness - self.last_best_fitness) <= 1:
+            self.stagnate += 1
 
         if len(current_genomes) > pop_size:
             current_genomes = current_genomes[:pop_size]
 
+        self.last_best_fitness = current_genomes[0].fitness
         new_genomes = []
         for index_1 in range(pop_size):
             genome_1 = current_genomes[index_1]
@@ -144,6 +154,27 @@ class Reproduction(DefaultReproduction):
 
                     if is_input and center_genome is not None:
                         new_genomes.append(center_genome)
+
+        # add global genome because of stagnate.
+        if self.stagnate == self.reproduction_config.theta:
+            success_count = 0
+            for created_index in range(pop_size):
+                random_key = random.randint(0, len(new_genomes) - 1)
+                genome = self.genome_type(random_key + pop_size)
+
+                for count in range(self.reproduction_config.search_count):
+                    genome.configure_new(self.genome_config)
+                    min_distance = float("inf")
+                    for generated_genome in current_genomes + new_genomes:
+                        current_distance = genome.distance(generated_genome, self.genome_config)
+                        if min_distance > current_distance:
+                            min_distance = current_distance
+                    if min_distance >= self.reproduction_config.init_distance:
+                        new_genomes[random_key] = genome
+                        success_count += 1
+                        break
+            if success_count >= pop_size / 2:
+                self.stagnate = 0
 
         # aggregate final population
         new_population = {}
