@@ -4,8 +4,6 @@ Name: NEAT evoluted by Binary Search
 Function(s):
 Reproduction by Binary Search and Random Near Search.
 """
-import random
-
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
@@ -16,10 +14,12 @@ class Reproduction(DefaultReproduction):
 
     def __init__(self, config, reporters, stagnation):
         super().__init__(config, reporters, stagnation)
-        self.stagnate = 0
-        self.last_best_fitness = None
         self.genome_config = None
         self.genome_type = None
+        self.last_global_rate = None
+        self.add_rate = None
+        self.last_speed = None
+        self.stagnate_flag = False
 
     @classmethod
     def parse_config(cls, param_dict):
@@ -36,8 +36,7 @@ class Reproduction(DefaultReproduction):
                                    ConfigParameter('min_species_size', int, 2),
                                    ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
-                                   ConfigParameter('search_count', int, 1),
-                                   ConfigParameter('theta', int, 50)])
+                                   ConfigParameter('search_count', int, 1)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -97,6 +96,38 @@ class Reproduction(DefaultReproduction):
 
         :return: new population.
         """
+
+        # obtain current genomes and current evolution speed.
+        current_genomes, current_speed = self.obtain_current(config, species, pop_size)
+
+        # obtain topological genomes and near genomes.
+        topo_genomes, near_genomes = self.obtain_new_network(pop_size, current_genomes)
+
+        # add global genome by evolution speed to eliminate stagnate.
+        global_genomes = self.insert_global_search(current_genomes + topo_genomes + near_genomes, current_speed,
+                                                   len(near_genomes), pop_size, config.fitness_threshold / 100.0)
+
+        if len(global_genomes) > 0:
+            near_genomes = near_genomes[:-len(global_genomes)]
+
+        # aggregate final population
+        new_population = {}
+        for index, genome in enumerate(current_genomes + topo_genomes + near_genomes + global_genomes):
+            genome.key = index
+            new_population[index] = genome
+
+        return new_population
+
+    def obtain_current(self, config, species, pop_size):
+        """
+        obtain current genotypical network and evolution speed.
+
+        :param config: genome config.
+        :param species: genome species.
+        :param pop_size: population size.
+
+        :return:
+        """
         # obtain all genomes from species.
         current_genomes = []
         for i, value in species.species.items():
@@ -113,14 +144,22 @@ class Reproduction(DefaultReproduction):
         # sort members in order of descending fitness.
         current_genomes.sort(reverse=True, key=lambda g: g.fitness)
 
-        if self.last_best_fitness is not None and abs(current_genomes[0].fitness - self.last_best_fitness) <= 1:
-            self.stagnate += 1
-
         if len(current_genomes) > pop_size:
             current_genomes = current_genomes[:pop_size]
 
-        self.last_best_fitness = current_genomes[0].fitness
-        new_genomes = []
+        return current_genomes, current_genomes[0].fitness / config.fitness_threshold
+
+    def obtain_new_network(self, pop_size, current_genomes):
+        """
+        obtain new phenotypical network from population size and current genotypical network.
+
+        :param pop_size: population size.
+        :param current_genomes: current genotypical network.
+
+        :return: center genomes and near genomes.
+        """
+        near_genomes = []
+        center_genomes = []
         for index_1 in range(pop_size):
             genome_1 = current_genomes[index_1]
             for index_2 in range(pop_size):
@@ -130,56 +169,70 @@ class Reproduction(DefaultReproduction):
                 if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:
                     # add near genome (limit search count)
                     while count < self.reproduction_config.search_count:
-                        near_genome = create_near_new(genome_1, self.genome_config, pop_size + len(new_genomes))
+                        near_genome = create_near_new(genome_1, self.genome_config,
+                                                      pop_size + len(near_genomes) + len(center_genomes))
                         is_input = True
-                        for check_genome in current_genomes + new_genomes:
+                        for check_genome in current_genomes + near_genomes + center_genomes:
                             if near_genome.distance(check_genome, self.genome_config) \
                                     < self.reproduction_config.min_distance:
                                 is_input = False
-
                         if is_input:
-                            new_genomes.append(near_genome)
+                            near_genomes.append(near_genome)
                             break
-
                         count += 1
 
                     # add center genome
                     center_genome = create_center_new(genome_1, genome_2, self.genome_config,
-                                                      pop_size + len(new_genomes))
+                                                      pop_size + len(near_genomes) + len(center_genomes))
                     is_input = True
-                    for check_genome in current_genomes + new_genomes:
+                    for check_genome in current_genomes + near_genomes + center_genomes:
                         if center_genome.distance(check_genome, self.genome_config) \
                                 < self.reproduction_config.min_distance:
                             is_input = False
 
                     if is_input and center_genome is not None:
-                        new_genomes.append(center_genome)
+                        center_genomes.append(center_genome)
 
-        # add global genome because of stagnate.
-        if self.stagnate == self.reproduction_config.theta:
-            success_count = 0
-            for created_index in range(pop_size):
-                random_key = random.randint(0, len(new_genomes) - 1)
-                genome = self.genome_type(random_key + pop_size)
+        return center_genomes, near_genomes
 
+    def insert_global_search(self, previous_genomes, current_speed, near_count, pop_size, change_threshold):
+        global_genomes = []
+
+        if self.last_global_rate is None:
+            # record global rate and evolution speed.
+            self.last_global_rate = pop_size / len(previous_genomes)
+            self.add_rate = (pop_size + 2) / pop_size
+            self.last_speed = current_speed
+        else:
+            # add global genome by evolution speed to eliminate stagnate.
+            if self.stagnate_flag and (current_speed - self.last_speed) > change_threshold:
+                global_rate = pop_size / len(previous_genomes)
+                self.stagnate_flag = False
+            else:
+                if current_speed == self.last_speed:
+                    self.stagnate_flag = True
+
+                global_rate = self.last_global_rate * self.add_rate / (2.0 * (current_speed / self.last_speed) - 1)
+
+                if global_rate > 0.5:
+                    global_rate = 0.5
+                elif global_rate < pop_size / len(previous_genomes):
+                    global_rate = pop_size / len(previous_genomes)
+
+            for created_index in range(int(near_count * global_rate)):
+                genome = self.genome_type(created_index + len(previous_genomes))
                 for count in range(self.reproduction_config.search_count):
                     genome.configure_new(self.genome_config)
                     min_distance = float("inf")
-                    for generated_genome in current_genomes + new_genomes:
+                    for generated_genome in previous_genomes + global_genomes:
                         current_distance = genome.distance(generated_genome, self.genome_config)
                         if min_distance > current_distance:
                             min_distance = current_distance
                     if min_distance >= self.reproduction_config.init_distance:
-                        new_genomes[random_key] = genome
-                        success_count += 1
+                        global_genomes.append(genome)
                         break
-            if success_count >= pop_size / 2:
-                self.stagnate = 0
 
-        # aggregate final population
-        new_population = {}
-        for index, genome in enumerate(current_genomes + new_genomes):
-            genome.key = index
-            new_population[index] = genome
+            self.last_speed = current_speed
+            self.last_global_rate = global_rate
 
-        return new_population
+        return global_genomes

@@ -4,6 +4,7 @@ import gym
 import neat
 
 from evolution_process.bean import genome, species_set
+from evolution_process.bean.phenotyper import create_drosophila_melanogaster, screen
 from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
 from evolution_process.methods import bi, tri, gs
 from utils.operator import Operator
@@ -21,6 +22,11 @@ class LOGIC_TYPE(Enum):
     NOR = 2
     IMPLY = 3
     XOR = 4
+
+
+class BIO_TYPE(Enum):
+    DROSOPHILA_MELANOGASTER = 1
+    FLOWER = 2
 
 
 class GAME_TYPE(Enum):
@@ -111,13 +117,113 @@ class Logic(object):
                     continue
                 generations.append(actual_generation)
 
-                # reset the hyper-parameters
-                self.operator.reset()
-
                 time += 1
-
                 if time >= times:
                     break
+
+                # reset the hyper-parameters
+                self.operator.reset()
+            except Exception or ValueError:
+                print("something error.")
+                self.operator.reset()
+
+        counts = [0 for _ in range(self.max_generation + 1)]
+        for generation in generations:
+            counts[generation] += 1
+
+        if self.display_results:
+            self.operator.display_genome(filename=self.filename)
+
+        return generations, counts
+
+
+class Biology(object):
+
+    def __init__(self, method_type, bio_type,
+                 max_generation, selection_ratio=1,
+                 display_results=False, checkpoint=-1, stdout=False):
+
+        data_inputs = None
+        data_outputs = None
+
+        if bio_type == BIO_TYPE.DROSOPHILA_MELANOGASTER:
+            data_inputs, data_outputs = create_drosophila_melanogaster()
+            self.filename = "drosophila_melanogaster."
+        # elif bio_type == BIO_TYPE.FLOWER:
+        #     data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+        #     data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
+        #     self.filename = "flower."
+
+        # selection if requested.
+        if selection_ratio < 1:
+            data_inputs, data_outputs = screen(data_inputs, data_outputs, selection_ratio)
+
+        # load evolution process.
+        fitter = FitDevice(FitProcess(init_fitness=0, eval_type=EVAL_TYPE.ManhattanDistance))
+        fitter.set_dataset({"i": data_inputs, "o": data_outputs})
+
+        # load configuration.
+        config = None
+        if method_type == METHOD_TYPE.FS:
+            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/bio.fs")
+            self.filename += "fs"
+        elif method_type == METHOD_TYPE.BI:
+            config = neat.Config(genome.GlobalGenome, bi.Reproduction,
+                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/bio.bi")
+            self.filename += "bi"
+        elif method_type == METHOD_TYPE.GS:
+            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
+                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/bio.gs")
+            self.filename += "gs"
+        elif method_type == METHOD_TYPE.TRI:
+            config = neat.Config(genome.GlobalGenome, tri.Reproduction,
+                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/bio.tri")
+            self.filename += "tri"
+
+        # initialize the NeuroEvolution
+        self.operator = Operator(config=config, fitter=fitter,
+                                 node_names={-1: '1 gene a', -2: '1 gene b', -3: '2 gene a', -4: '2 gene b',
+                                             0: 'ab', 1: 'ab', 2: 'Ab', 3: 'AB'},
+                                 max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
+                                 output_path="../output/")
+
+        # set whether display results
+        self.display_results = display_results
+
+        self.max_generation = max_generation
+
+    def run(self, times):
+        generations = []
+        time = 0
+        while True:
+            try:
+                if times > 1:
+                    # print current times.
+                    print()
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print("procession time: " + str(time + 1))
+                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                    print()
+
+                self.operator.obtain_winner()
+                actual_generation, fit = self.operator.get_actual_generation()
+                if not fit:
+                    # reset the hyper-parameters
+                    self.operator.reset()
+                    continue
+                generations.append(actual_generation)
+
+                time += 1
+                if time >= times:
+                    break
+
+                # reset the hyper-parameters
+                self.operator.reset()
             except Exception or ValueError:
                 print("something error.")
                 self.operator.reset()
@@ -135,16 +241,16 @@ class Logic(object):
 class Game(object):
 
     def __init__(self, method_type, game_type,
-                 episode_steps, episode_generation,
-                 max_generation, display_results=False, checkpoint=-1, stdout=False):
+                 episode_steps, episode_generation, max_generation,
+                 display_results=False, checkpoint=-1, stdout=False):
 
-        game_environemnt = None
+        game_environment = None
         if game_type == GAME_TYPE.CartPole_v0:
-            game_environemnt = gym.make("CartPole-v0").unwrapped
+            game_environment = gym.make("CartPole-v0").unwrapped
 
         # load evolution process.
         fitter = FitDevice(FitProcess())
-        fitter.set_environment(environment=game_environemnt,
+        fitter.set_environment(environment=game_environment,
                                input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
                                episode_steps=episode_steps, episode_generation=episode_generation)
 
@@ -203,13 +309,12 @@ class Game(object):
                     continue
                 generations.append(actual_generation)
 
-                # reset the hyper-parameters
-                self.operator.reset()
-
                 time += 1
-
                 if time >= times:
                     break
+
+                # reset the hyper-parameters
+                self.operator.reset()
             except Exception or ValueError:
                 print("something error.")
                 self.operator.reset()

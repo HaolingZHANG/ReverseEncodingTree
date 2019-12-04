@@ -1,11 +1,11 @@
 import itertools
 import math
 
-# Dominant Homozygote: AA
+# Dominant Homozygote: e.g. AA
 DHo = 2
-# Dominant Heterozygote: Aa
+# Dominant Heterozygote: e.g. Aa
 DHe = 1
-# Negative Homozygote: aa
+# Negative Homozygote: e.g. aa
 NHo = 0
 
 # Hybridization ratio: (negative, dominant), the position is the combination of gene type.
@@ -26,31 +26,52 @@ def create_drosophila_melanogaster():
 
     :return: data_inputs, data_outputs.
     """
-    return create_normal(2)
+    return create_phenotypes(gene_count=2)
 
 
 def create_flower():
     """
     Additive Gene Effects
 
+    ref: Bateson, W., & Saunders, E. R. (1910). Reports to the Evolution Committee of the Royal Society: ReportsI-V, 1902-09. Royal Society.
+
     :return:
     """
-    pass
+    gene_count = 2
+    data_inputs, data_outputs = [], []
+
+    gene_types = list(itertools.product([NHo, DHe, DHo], repeat=gene_count))
+    for gene_1 in gene_types:
+        for gene_2 in gene_types:
+            # calculate the genotypical situation (input)
+            data_input = [0 for _ in range(gene_count * 2)]
+            for gene_index in range(gene_count):
+                data_input[gene_index] = gene_1[gene_index]
+                data_input[gene_index + gene_count] = gene_2[gene_index]
+
+            # calculate the phenotypical distribution (output)
+            distribution = []
 
 
-def create_normal(gene_count):
+def create_phenotypes(gene_count, death_types=None, influences=None):
     """
-    create genes from normal type.
+    create the phenotypical distribution.
 
-    :param gene_count: count of gene.
+    :param gene_count:
+    :param death_types:
+    :param influences:
 
-    :return: data_inputs, data_outputs.
+    :return:
     """
     data_inputs, data_outputs = [], []
 
     gene_types = list(itertools.product([NHo, DHe, DHo], repeat=gene_count))
     for gene_1 in gene_types:
         for gene_2 in gene_types:
+            # delete the death types
+            if death_types is not None and (gene_1 in death_types or gene_2 in death_types):
+                continue
+
             # calculate the genotypical situation (input)
             data_input = [0 for _ in range(gene_count * 2)]
             for gene_index in range(gene_count):
@@ -66,31 +87,21 @@ def create_normal(gene_count):
                     count *= normal_hybridize[gene_1[gene_index]][gene_2[gene_index]][detailed_type[gene_index]]
                 distribution.append(count)
 
-            data_inputs.append(data_input)
-            data_outputs.append(distribution)
+            data_inputs.append(tuple(data_input))
+            data_outputs.append(tuple(distribution))
 
     return data_inputs, data_outputs
 
 
-def create_negative_epistasis(gene_count):
-    """
-    ref: Bateson, W., & Saunders, E. R. (1910). Reports to the Evolution Committee of the Royal Society: ReportsI-V, 1902-09. Royal Society.
-    :return:
-    """
-    data_inputs, data_outputs = [], []
+def screen(inputs, outputs, selection_rate=1):
+    if selection_rate < 1:
+        selected_inputs, selected_outputs = [], []
+        interval = math.ceil(1 / selection_rate)
+        for index, (data_input, data_output) in enumerate(zip(inputs, outputs)):
+            if index % interval == 0:
+                selected_inputs.append(data_input)
+                selected_outputs.append(data_output)
 
-    gene_types = list(itertools.product([NHo, DHe, DHo], repeat=gene_count))
-    for gene_1 in gene_types:
-        for gene_2 in gene_types:
-            # calculate the genotypical situation (input)
-            data_input = [0 for _ in range(gene_count * 2)]
-            for gene_index in range(gene_count):
-                data_input[gene_index] = gene_1[gene_index]
-                data_input[gene_index + gene_count] = gene_2[gene_index]
-            # calculate the phenotypical distribution (output)
-            distribution = []
+        return selected_inputs, selected_outputs
 
-
-inputs, outputs = create_normal(2)
-print(inputs)
-print(outputs)
+    return inputs, outputs

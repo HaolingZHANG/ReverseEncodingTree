@@ -29,6 +29,10 @@ def create_center_new(genome_1, genome_2, config, key):
             for col in range(length):
                 new_feature_matrix[row][col] = (genome_1.feature_matrix[row][col] +
                                                 genome_2.feature_matrix[row][col]) / 2
+
+        # if config.feed_forward and has_recurrent(new_feature_matrix):
+        #     return None
+
         new_genome = GlobalGenome(key)
         new_genome.feature_matrix_new(new_feature_matrix, config)
         return new_genome
@@ -56,11 +60,35 @@ def create_golden_section_new(genome_1, genome_2, config, key):
                 value_2 = genome_2.feature_matrix[row][col]
                 new_feature_matrix[row][col] = value_1 + (value_2 - value_1) * ((3 - math.sqrt(5)) / 2)
 
+        # if config.feed_forward and has_recurrent(new_feature_matrix):
+        #     return None
+
         new_genome = GlobalGenome(key)
         new_genome.feature_matrix_new(new_feature_matrix, config)
         return new_genome
 
     return None
+
+
+def has_recurrent(feature_matrix):
+    for start_index in range(len(feature_matrix)):
+        path = [start_index]
+        while True:
+
+            if len(path) < len(feature_matrix):
+                for index, next_step in enumerate(feature_matrix[path[-1]][1:]):
+                    if next_step > 0:
+                        path.append(index)
+
+                    if path[-1] == start_index:
+                        return True
+
+
+            break
+
+            pass
+
+    return False
 
 
 def create_near_new(genome, config, key):
