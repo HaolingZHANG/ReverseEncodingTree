@@ -13,7 +13,7 @@ from utils.operator import Operator
 class METHOD_TYPE(Enum):
     FS = 0
     BI = 1
-    GS = 2
+    GSS = 2
     TRI = 3
 
 
@@ -74,7 +74,7 @@ class Logic(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.bi")
             self.filename += "bi"
-        elif method_type == METHOD_TYPE.GS:
+        elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.gs")
@@ -174,7 +174,7 @@ class Biology(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/bio.bi")
             self.filename += "bi"
-        elif method_type == METHOD_TYPE.GS:
+        elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/bio.gs")
@@ -242,6 +242,7 @@ class Game(object):
 
     def __init__(self, method_type, game_type,
                  episode_steps, episode_generation, max_generation,
+                 attacker=None, noise_level=-1,
                  display_results=False, checkpoint=-1, stdout=False):
 
         game_environment = None
@@ -252,7 +253,8 @@ class Game(object):
         fitter = FitDevice(FitProcess())
         fitter.set_environment(environment=game_environment,
                                input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
-                               episode_steps=episode_steps, episode_generation=episode_generation)
+                               episode_steps=episode_steps, episode_generation=episode_generation,
+                               attacker=attacker, noise_level=noise_level)
 
         # load configuration.
         config = None
@@ -266,7 +268,7 @@ class Game(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/cart-pole-v0.bi")
             self.filename = "CartPole-v0.bi"
-        elif method_type == METHOD_TYPE.GS:
+        elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/cart-pole-v0.gs")
@@ -343,7 +345,7 @@ def save_distribution(counts, parent_path, task_name, method_type):
         path += "fs.csv"
     elif method_type == METHOD_TYPE.BI:
         path += "bi.csv"
-    elif method_type == METHOD_TYPE.GS:
+    elif method_type == METHOD_TYPE.GSS:
         path += "gs.csv"
     elif method_type == METHOD_TYPE.TRI:
         path += "tri.csv"

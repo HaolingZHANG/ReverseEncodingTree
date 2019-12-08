@@ -26,7 +26,7 @@ class Reproduction(DefaultReproduction):
         """
         add init and min distance in config.
 
-        :param param_dict: parameter dictory.
+        :param param_dict: parameter dictionary.
 
         :return: config.
         """
@@ -219,6 +219,7 @@ class Reproduction(DefaultReproduction):
                 elif global_rate < pop_size / len(previous_genomes):
                     global_rate = pop_size / len(previous_genomes)
 
+            print("Global count:" + str(int(near_count * global_rate)))
             for created_index in range(int(near_count * global_rate)):
                 genome = self.genome_type(created_index + len(previous_genomes))
                 for count in range(self.reproduction_config.search_count):
