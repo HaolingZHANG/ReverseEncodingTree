@@ -36,7 +36,8 @@ class Reproduction(DefaultReproduction):
                                    ConfigParameter('min_species_size', int, 2),
                                    ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
-                                   ConfigParameter('search_count', int, 1)])
+                                   ConfigParameter('search_count', int, 1),
+                                   ConfigParameter('add_rate', float, 1.1)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -82,6 +83,7 @@ class Reproduction(DefaultReproduction):
 
             new_genomes[key] = genome
             self.ancestors[key] = tuple()
+            self.add_rate = self.reproduction_config.add_rate
 
         return new_genomes
 
@@ -201,7 +203,6 @@ class Reproduction(DefaultReproduction):
         if self.last_global_rate is None:
             # record global rate and evolution speed.
             self.last_global_rate = pop_size / len(previous_genomes)
-            self.add_rate = (pop_size + 2) / pop_size
             self.last_speed = current_speed
         else:
             # add global genome by evolution speed to eliminate stagnate.
@@ -219,7 +220,7 @@ class Reproduction(DefaultReproduction):
                 elif global_rate < pop_size / len(previous_genomes):
                     global_rate = pop_size / len(previous_genomes)
 
-            print("Global count:" + str(int(near_count * global_rate)))
+            print("Global count: " + str(int(near_count * global_rate)))
             for created_index in range(int(near_count * global_rate)):
                 genome = self.genome_type(created_index + len(previous_genomes))
                 for count in range(self.reproduction_config.search_count):

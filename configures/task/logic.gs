@@ -81,3 +81,4 @@ survival_threshold = 0.2
 init_distance      = 7
 min_distance       = 0.1
 search_count       = 30
+add_rate           = 1.2
