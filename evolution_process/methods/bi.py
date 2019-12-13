@@ -309,8 +309,7 @@ class Reproduction(DefaultReproduction):
         center_genome = create_center_new(matrix_1, matrix_2, self.genome_config, index)
         is_input = True
         for check_genome in saved_genomes:
-            if center_genome.distance(check_genome, self.genome_config) \
-                    < self.reproduction_config.min_distance:
+            if center_genome.distance(check_genome, self.genome_config) < self.reproduction_config.min_distance:
                 is_input = False
 
         if is_input:
@@ -324,8 +323,7 @@ class Reproduction(DefaultReproduction):
             near_genome = create_near_new(parent_genome, self.genome_config, index)
             is_input = True
             for check_genome in saved_genomes:
-                if near_genome.distance(check_genome, self.genome_config) \
-                        < self.reproduction_config.min_distance:
+                if near_genome.distance(check_genome, self.genome_config) < self.reproduction_config.min_distance:
                     is_input = False
             if is_input:
                 return near_genome

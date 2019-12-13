@@ -15,8 +15,7 @@ class Reproduction(bi.Reproduction):
         center_genome = create_golden_section_new(matrix_1, matrix_2, self.genome_config, index)
         is_input = True
         for check_genome in saved_genomes:
-            if center_genome.distance(check_genome, self.genome_config) \
-                    < self.reproduction_config.min_distance:
+            if center_genome.distance(check_genome, self.genome_config) < self.reproduction_config.min_distance:
                 is_input = False
 
         if is_input:
