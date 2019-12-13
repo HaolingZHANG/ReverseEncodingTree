@@ -3,7 +3,7 @@
 [NEAT]
 pop_size              = 3
 fitness_criterion     = max
-fitness_threshold     = 1.
+fitness_threshold     = 0.99
 reset_on_extinction   = 0
 
 [GlobalGenome]
@@ -47,7 +47,7 @@ node_delete_prob        = 0.2
 num_hidden              = 0
 num_inputs              = 4
 num_outputs             = 2
-max_node_num            = 10
+max_node_num            = 7
 
 # node response options
 response_init_mean      = 1.0
@@ -76,8 +76,7 @@ max_stagnation       = 20
 species_elitism      = 4
 
 [Reproduction]
-elitism            = 2
-survival_threshold = 0.2
-init_distance      = 2
-min_distance       = 0.1
-search_count       = 20
+init_distance    = 2
+min_distance     = 0.1
+correlation_rate = 0.5
+search_count     = 30

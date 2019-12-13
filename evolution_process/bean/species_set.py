@@ -33,11 +33,12 @@ class StrongSpeciesSet(DefaultSpeciesSet):
                 candidates.append((d, g))
 
             # The new representative is the genome closest to the current representative.
-            ignored_rdist, new_rep = min(candidates, key=lambda x: x[0])
-            new_rid = new_rep.key
-            new_representatives[sid] = new_rid
-            new_members[sid] = [new_rid]
-            unspeciated.remove(new_rid)
+            if len(candidates) > 0:
+                ignored_rdist, new_rep = min(candidates, key=lambda x: x[0])
+                new_rid = new_rep.key
+                new_representatives[sid] = new_rid
+                new_members[sid] = [new_rid]
+                unspeciated.remove(new_rid)
 
         # Partition population into species based on genetic similarity.
         while unspeciated:

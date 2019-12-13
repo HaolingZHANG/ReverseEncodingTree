@@ -77,8 +77,8 @@ class Logic(object):
         elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.gs")
-            self.filename += "gs"
+                                 "../configures/task/logic.gss")
+            self.filename += "gss"
         elif method_type == METHOD_TYPE.TRI:
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -100,7 +100,7 @@ class Logic(object):
         generations = []
         time = 0
         while True:
-            try:
+            # try:
                 if times > 1:
                     # print current times.
                     print()
@@ -123,9 +123,9 @@ class Logic(object):
 
                 # reset the hyper-parameters
                 self.operator.reset()
-            except Exception or ValueError:
-                print("something error.")
-                self.operator.reset()
+            # except Exception or ValueError:
+            #     print("something error.")
+            #     self.operator.reset()
 
         counts = [0 for _ in range(self.max_generation + 1)]
         for generation in generations:
@@ -177,7 +177,7 @@ class Biology(object):
         elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.gs")
+                                 "../configures/task/bio.gss")
             self.filename += "gs"
         elif method_type == METHOD_TYPE.TRI:
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
@@ -271,8 +271,8 @@ class Game(object):
         elif method_type == METHOD_TYPE.GSS:
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/cart-pole-v0.gs")
-            self.filename = "CartPole-v0.gs"
+                                 "../configures/task/cart-pole-v0.gss")
+            self.filename = "CartPole-v0.gss"
         elif method_type == METHOD_TYPE.TRI:
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
@@ -346,7 +346,7 @@ def save_distribution(counts, parent_path, task_name, method_type):
     elif method_type == METHOD_TYPE.BI:
         path += "bi.csv"
     elif method_type == METHOD_TYPE.GSS:
-        path += "gs.csv"
+        path += "gss.csv"
     elif method_type == METHOD_TYPE.TRI:
         path += "tri.csv"
 

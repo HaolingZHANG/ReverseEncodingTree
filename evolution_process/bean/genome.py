@@ -11,84 +11,55 @@ from neat.genome import DefaultGenomeConfig
 from six import iteritems, itervalues
 
 
-def create_center_new(genome_1, genome_2, config, key):
+def create_center_new(feature_matrix_1, feature_matrix_2, config, key):
     """
     create a new genome at the midpoint of two genomes.
 
-    :param genome_1: one genome.
-    :param genome_2: another genome.
+    :param feature_matrix_1: feature_matrix in one genome.
+    :param feature_matrix_2: feature_matrix in another genome.
     :param config: genome config.
     :param key: key of the new genome.
 
     :return: center genome.
     """
-    if hasattr(genome_1, 'feature_matrix') and hasattr(genome_2, 'feature_matrix'):
-        length = len(genome_1.feature_matrix)
-        new_feature_matrix = [[0 for _ in range(length)] for _ in range(length)]
-        for row in range(length):
-            for col in range(length):
-                new_feature_matrix[row][col] = (genome_1.feature_matrix[row][col] +
-                                                genome_2.feature_matrix[row][col]) / 2
+    new_feature_matrix = []
+    for row_1, row_2 in zip(feature_matrix_1, feature_matrix_2):
+        new_row = []
+        for value_1, value_2 in zip(row_1, row_2):
+            new_row.append((value_1 + value_2) / 2.0)
 
-        # if config.feed_forward and has_recurrent(new_feature_matrix):
-        #     return None
+        new_feature_matrix.append(new_row)
 
-        new_genome = GlobalGenome(key)
-        new_genome.feature_matrix_new(new_feature_matrix, config)
-        return new_genome
+    new_genome = GlobalGenome(key)
+    new_genome.feature_matrix_new(new_feature_matrix, config)
 
-    return None
+    return new_genome
 
 
-def create_golden_section_new(genome_1, genome_2, config, key):
+def create_golden_section_new(feature_matrix_1, feature_matrix_2, config, key):
     """
     create a new genome at the golden-section of two genomes, near genome 1.
 
-    :param genome_1: one genome.
-    :param genome_2: another genome.
+    :param feature_matrix_1: feature_matrix in one genome.
+    :param feature_matrix_2: feature_matrix in another genome.
     :param config: genome config.
     :param key: key of the new genome.
 
     :return: center genome.
     """
-    if hasattr(genome_1, 'feature_matrix') and hasattr(genome_2, 'feature_matrix'):
-        length = len(genome_1.feature_matrix)
-        new_feature_matrix = [[0 for _ in range(length)] for _ in range(length)]
-        for row in range(length):
-            for col in range(length):
-                value_1 = genome_1.feature_matrix[row][col]
-                value_2 = genome_2.feature_matrix[row][col]
-                new_feature_matrix[row][col] = value_1 + (value_2 - value_1) * ((3 - math.sqrt(5)) / 2)
 
-        # if config.feed_forward and has_recurrent(new_feature_matrix):
-        #     return None
+    new_feature_matrix = []
+    for row_1, row_2 in zip(feature_matrix_1, feature_matrix_2):
+        new_row = []
+        for value_1, value_2 in zip(row_1, row_2):
+            new_row.append(value_1 + (value_2 - value_1) * ((3 - math.sqrt(5)) / 2))
 
-        new_genome = GlobalGenome(key)
-        new_genome.feature_matrix_new(new_feature_matrix, config)
-        return new_genome
+        new_feature_matrix.append(new_row)
 
-    return None
+    new_genome = GlobalGenome(key)
+    new_genome.feature_matrix_new(new_feature_matrix, config)
 
-
-def has_recurrent(feature_matrix):
-    for start_index in range(len(feature_matrix)):
-        path = [start_index]
-        while True:
-
-            if len(path) < len(feature_matrix):
-                for index, next_step in enumerate(feature_matrix[path[-1]][1:]):
-                    if next_step > 0:
-                        path.append(index)
-
-                    if path[-1] == start_index:
-                        return True
-
-
-            break
-
-            pass
-
-    return False
+    return new_genome
 
 
 def create_near_new(genome, config, key):
@@ -108,6 +79,15 @@ def create_near_new(genome, config, key):
     new_genome.set_feature_matrix(config)
 
     return new_genome
+
+
+def distance_between_two_matrices(matrix_1, matrix_2):
+    distance = 0
+    for row_1, row_2 in zip(matrix_1, matrix_2):
+        for value_1, value_2 in zip(row_1, row_2):
+            distance += math.pow(value_1 - value_2, 2)
+
+    return math.sqrt(distance)
 
 
 # noinspection PyMissingConstructor
@@ -329,12 +309,7 @@ class GlobalGenome(neat.DefaultGenome):
         if other.feature_matrix is None:
             other.set_feature_matrix(config)
 
-        distance = 0
-        for row in range(len(self.feature_matrix)):
-            for col in range(len(self.feature_matrix)):
-                distance += math.pow(self.feature_matrix[row][col] - other.feature_matrix[row][col], 2)
-
-        return math.sqrt(distance)
+        return distance_between_two_matrices(self.feature_matrix, other.feature_matrix)
 
     def mutate_add_node(self, config):
         """

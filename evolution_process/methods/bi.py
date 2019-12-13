@@ -4,22 +4,25 @@ Name: NEAT evoluted by Binary Search
 Function(s):
 Reproduction by Binary Search and Random Near Search.
 """
+import copy
+
+import math
+import pandas
+from sklearn.cluster import KMeans
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
-from evolution_process.bean.genome import create_near_new, create_center_new
+from evolution_process.bean.genome import create_near_new, create_center_new, distance_between_two_matrices
 
 
 class Reproduction(DefaultReproduction):
 
     def __init__(self, config, reporters, stagnation):
         super().__init__(config, reporters, stagnation)
+        self.best_genome = None
         self.genome_config = None
         self.genome_type = None
-        self.last_global_rate = None
-        self.add_rate = None
-        self.last_speed = None
-        self.stagnate_flag = False
+        self.global_rate = None
 
     @classmethod
     def parse_config(cls, param_dict):
@@ -31,11 +34,9 @@ class Reproduction(DefaultReproduction):
         :return: config.
         """
         return DefaultClassConfig(param_dict,
-                                  [ConfigParameter('elitism', int, 0),
-                                   ConfigParameter('survival_threshold', float, 0.2),
-                                   ConfigParameter('min_species_size', int, 2),
-                                   ConfigParameter('init_distance', float, 5),
+                                  [ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
+                                   ConfigParameter('correlation_rate', float, 0.5),
                                    ConfigParameter('search_count', int, 1)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
@@ -98,31 +99,23 @@ class Reproduction(DefaultReproduction):
         """
 
         # obtain current genomes and current evolution speed.
-        current_genomes, current_speed = self.obtain_current(config, species, pop_size)
+        genome_clusters, cluster_centers = self.obtain_clusters(species, pop_size)
 
         # obtain topological genomes and near genomes.
-        topo_genomes, near_genomes = self.obtain_new_network(pop_size, current_genomes)
-
-        # add global genome by evolution speed to eliminate stagnate.
-        global_genomes = self.insert_global_search(current_genomes + topo_genomes + near_genomes, current_speed,
-                                                   len(near_genomes), pop_size, config.fitness_threshold / 100.0)
-
-        if len(global_genomes) > 0:
-            near_genomes = near_genomes[:-len(global_genomes)]
+        new_genomes = self.obtain_phenotypical_network(pop_size, genome_clusters, cluster_centers)
 
         # aggregate final population
         new_population = {}
-        for index, genome in enumerate(current_genomes + topo_genomes + near_genomes + global_genomes):
+        for index, genome in enumerate(new_genomes):
             genome.key = index
             new_population[index] = genome
 
         return new_population
 
-    def obtain_current(self, config, species, pop_size):
+    def obtain_clusters(self, species, pop_size):
         """
         obtain current genotypical network and evolution speed.
 
-        :param config: genome config.
         :param species: genome species.
         :param pop_size: population size.
 
@@ -135,105 +128,208 @@ class Reproduction(DefaultReproduction):
             for key, individual in members.items():
                 current_genomes.append(individual)
 
-        # calculate average adjusted fitness
-        avg_adjusted_fitness = 0
-        for genome in current_genomes:
-            avg_adjusted_fitness += genome.fitness / pop_size
-        self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
-
         # sort members in order of descending fitness.
         current_genomes.sort(reverse=True, key=lambda g: g.fitness)
 
+        # calculate speed list and avg adjusted fitness
+        avg_adjusted_fitness = 0
+
         if len(current_genomes) > pop_size:
-            current_genomes = current_genomes[:pop_size]
+            feature_matrices = []
+            for genome in current_genomes:
+                feature_matrices.append([])
+                for feature_slice in genome.feature_matrix:
+                    feature_matrices[-1] += copy.deepcopy(feature_slice)
 
-        return current_genomes, current_genomes[0].fitness / config.fitness_threshold
+            # cluster the current network based on the size of population.
+            k_means = KMeans(n_clusters=pop_size, max_iter=len(current_genomes))
+            k_means.fit(feature_matrices)
+            cluster_centers = []
+            for cluster_center in k_means.cluster_centers_:
+                feature_matrix = []
+                for index in range(self.genome_config.max_node_num):
+                    feature_matrix.append(list(cluster_center[index * self.genome_config.max_node_num:
+                                                              (index + 1) * self.genome_config.max_node_num + 1]))
+                cluster_centers.append(feature_matrix)
 
-    def obtain_new_network(self, pop_size, current_genomes):
+            genome_clusters = [[] for _ in range(pop_size)]
+            for index, cluster_index in enumerate(k_means.labels_):
+                genome_clusters[cluster_index].append(current_genomes[index])
+
+            for genome_cluster in genome_clusters:
+                avg_adjusted_fitness += genome_cluster[0].fitness / pop_size
+
+            self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
+
+            return genome_clusters, cluster_centers
+        else:
+            genome_clusters = []
+            for genome in current_genomes:
+                genome_clusters.append([genome])
+                avg_adjusted_fitness += genome.fitness / pop_size
+
+            self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
+
+            return genome_clusters, None
+
+    def obtain_phenotypical_network(self, pop_size, genome_clusters, cluster_centers):
         """
         obtain new phenotypical network from population size and current genotypical network.
 
         :param pop_size: population size.
-        :param current_genomes: current genotypical network.
+        :param genome_clusters: current genotypical network.
+        :param cluster_centers:
 
         :return: center genomes and near genomes.
         """
-        near_genomes = []
-        center_genomes = []
-        for index_1 in range(pop_size):
-            genome_1 = current_genomes[index_1]
-            for index_2 in range(pop_size):
-                count = 0
-                genome_2 = current_genomes[index_2]
+        if cluster_centers is not None:
+            saved_genomes = []
+            correlations = []
 
-                if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:
-                    # add near genome (limit search count)
-                    while count < self.reproduction_config.search_count:
-                        near_genome = create_near_new(genome_1, self.genome_config,
-                                                      pop_size + len(near_genomes) + len(center_genomes))
-                        is_input = True
-                        for check_genome in current_genomes + near_genomes + center_genomes:
-                            if near_genome.distance(check_genome, self.genome_config) \
-                                    < self.reproduction_config.min_distance:
-                                is_input = False
-                        if is_input:
-                            near_genomes.append(near_genome)
-                            break
-                        count += 1
+            # analyze the correlation between fitting degree and spatial position (negative correlation normally).
+            for genome_cluster in genome_clusters:
+                distances = [0]
+                fitnesses = [genome_cluster[0].fitness]
+                saved_genomes.append(genome_cluster[0])
+                for index in range(1, len(genome_cluster)):
+                    distances.append(genome_cluster[0].distance(genome_cluster[index], self.genome_config))
+                    fitnesses.append(genome_cluster[index].fitness)
 
-                    # add center genome
-                    center_genome = create_center_new(genome_1, genome_2, self.genome_config,
-                                                      pop_size + len(near_genomes) + len(center_genomes))
-                    is_input = True
-                    for check_genome in current_genomes + near_genomes + center_genomes:
-                        if center_genome.distance(check_genome, self.genome_config) \
-                                < self.reproduction_config.min_distance:
-                            is_input = False
+                if len(fitnesses) > 1:
+                    correlations.append(pandas.Series(distances).corr(pandas.Series(fitnesses)))
+                else:
+                    correlations.append(-1)
 
-                    if is_input and center_genome is not None:
-                        center_genomes.append(center_genome)
+                for index in range(len(correlations)):
+                    if math.isnan(correlations[index]):
+                        correlations[index] = 0
 
-        return center_genomes, near_genomes
+            print("Correlations: " + str(correlations))
 
-    def insert_global_search(self, previous_genomes, current_speed, near_count, pop_size, change_threshold):
-        global_genomes = []
+            new_genomes = []
+            # construct the topology of the phenotypical network
+            for index_1 in range(pop_size):
+                cluster_1 = genome_clusters[index_1]
+                for index_2 in range(pop_size):
+                    cluster_2 = genome_clusters[index_2]
 
-        if self.last_global_rate is None:
-            # record global rate and evolution speed.
-            self.last_global_rate = pop_size / len(previous_genomes)
-            self.add_rate = (pop_size + 1) / pop_size
-            self.last_speed = current_speed
+                    if distance_between_two_matrices(cluster_1[0].feature_matrix, cluster_2[0].feature_matrix) \
+                            > self.reproduction_config.min_distance:
+
+                        # If the two clusters both have highly correlations,
+                        # it means that the current network of these two clusters has a better description of phenotype,
+                        # and then evolution is carried out according to the original method.
+                        if correlations[index_1] >= self.reproduction_config.correlation_rate \
+                                and correlations[index_2] >= self.reproduction_config.correlation_rate:
+                            topo_genome = self.obtain_topological_genome(cluster_centers[index_1],
+                                                                         cluster_centers[index_2],
+                                                                         saved_genomes + new_genomes, -1)
+                            if cluster_1[0].fitness > cluster_2[0].fitness:
+                                near_genome = self.obtain_near_genome(cluster_1[0],
+                                                                      saved_genomes + new_genomes + cluster_1, -1)
+                            else:
+                                near_genome = self.obtain_near_genome(cluster_2[0],
+                                                                      saved_genomes + new_genomes + cluster_2, -1)
+
+                            if near_genome is not None:
+                                new_genomes.append(near_genome)
+                            if topo_genome is not None:
+                                new_genomes.append(topo_genome)
+
+                        elif correlations[index_1] >= self.reproduction_config.correlation_rate > correlations[index_2]:
+                            if cluster_1[0].fitness > cluster_2[0].fitness:
+                                near_genome_1 = self.obtain_near_genome(cluster_1[0],
+                                                                        saved_genomes + new_genomes + cluster_1, -1)
+                                near_genome_2 = self.obtain_near_genome(cluster_2[0],
+                                                                        saved_genomes + new_genomes + cluster_2, -1)
+                            else:
+                                near_genome_1 = self.obtain_near_genome(cluster_2[0],
+                                                                        saved_genomes + new_genomes + cluster_2, -1)
+                                near_genome_2 = self.obtain_near_genome(cluster_2[0],
+                                                                        saved_genomes + new_genomes + cluster_2, -1)
+
+                            if near_genome_1 is not None:
+                                new_genomes.append(near_genome_1)
+                            if near_genome_2 is not None:
+                                new_genomes.append(near_genome_2)
+
+                        elif correlations[index_2] >= self.reproduction_config.correlation_rate > correlations[index_1]:
+                            if cluster_1[0].fitness > cluster_2[0].fitness:
+                                near_genome_1 = self.obtain_near_genome(cluster_1[0],
+                                                                        saved_genomes + new_genomes + cluster_1, -1)
+                                near_genome_2 = self.obtain_near_genome(cluster_1[0],
+                                                                        saved_genomes + new_genomes + cluster_1, -1)
+
+                            else:
+                                near_genome_1 = self.obtain_near_genome(cluster_1[0],
+                                                                        saved_genomes + new_genomes + cluster_1, -1)
+                                near_genome_2 = self.obtain_near_genome(cluster_2[0],
+                                                                        saved_genomes + new_genomes + cluster_2, -1)
+
+                            if near_genome_1 is not None:
+                                new_genomes.append(near_genome_1)
+                            if near_genome_2 is not None:
+                                new_genomes.append(near_genome_2)
+                        else:
+                            near_genome_1 = self.obtain_near_genome(cluster_1[0],
+                                                                    saved_genomes + new_genomes + cluster_1, -1)
+                            near_genome_2 = self.obtain_near_genome(cluster_2[0],
+                                                                    saved_genomes + new_genomes + cluster_2, -1)
+                            if near_genome_1 is not None:
+                                new_genomes.append(near_genome_1)
+                            if near_genome_2 is not None:
+                                new_genomes.append(near_genome_2)
+
+            new_genomes += saved_genomes
         else:
-            # add global genome by evolution speed to eliminate stagnate.
-            if self.stagnate_flag and (current_speed - self.last_speed) > change_threshold:
-                global_rate = pop_size / len(previous_genomes)
-                self.stagnate_flag = False
-            else:
-                if current_speed == self.last_speed:
-                    self.stagnate_flag = True
+            # create the initial topology network (binary search & near search).
+            new_genomes = []
+            for genome_cluster in genome_clusters:
+                new_genomes.append(genome_cluster[0])
 
-                global_rate = self.last_global_rate * self.add_rate / (2.0 * (current_speed / self.last_speed) - 1)
+            for index_1 in range(pop_size):
+                genome_1 = new_genomes[index_1]
+                for index_2 in range(pop_size):
+                    genome_2 = new_genomes[index_2]
 
-                if global_rate > 0.5:
-                    global_rate = 0.5
-                elif global_rate < pop_size / len(previous_genomes):
-                    global_rate = pop_size / len(previous_genomes)
+                    if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:
+                        # add near genome (limit search count)
+                        near_genome = self.obtain_near_genome(genome_1, new_genomes, -1)
+                        # add center genome
+                        topo_genome = self.obtain_topological_genome(genome_1.feature_matrix, genome_2.feature_matrix,
+                                                                     new_genomes, -1)
+                        if near_genome is not None:
+                            new_genomes.append(near_genome)
+                        if topo_genome is not None:
+                            new_genomes.append(topo_genome)
 
-            print("Global count: " + str(int(near_count * global_rate)))
-            for created_index in range(int(near_count * global_rate)):
-                genome = self.genome_type(created_index + len(previous_genomes))
-                for count in range(self.reproduction_config.search_count):
-                    genome.configure_new(self.genome_config)
-                    min_distance = float("inf")
-                    for generated_genome in previous_genomes + global_genomes:
-                        current_distance = genome.distance(generated_genome, self.genome_config)
-                        if min_distance > current_distance:
-                            min_distance = current_distance
-                    if min_distance >= self.reproduction_config.init_distance:
-                        global_genomes.append(genome)
-                        break
+        return new_genomes
 
-            self.last_speed = current_speed
-            self.last_global_rate = global_rate
+    def obtain_topological_genome(self, matrix_1, matrix_2, saved_genomes, index):
+        center_genome = create_center_new(matrix_1, matrix_2, self.genome_config, index)
+        is_input = True
+        for check_genome in saved_genomes:
+            if center_genome.distance(check_genome, self.genome_config) \
+                    < self.reproduction_config.min_distance:
+                is_input = False
 
-        return global_genomes
+        if is_input:
+            return center_genome
+
+        return None
+
+    def obtain_near_genome(self, parent_genome, saved_genomes, index):
+        count = 0
+        while count < self.reproduction_config.search_count:
+            near_genome = create_near_new(parent_genome, self.genome_config, index)
+            is_input = True
+            for check_genome in saved_genomes:
+                if near_genome.distance(check_genome, self.genome_config) \
+                        < self.reproduction_config.min_distance:
+                    is_input = False
+            if is_input:
+                return near_genome
+
+            count += 1
+
+        return None
