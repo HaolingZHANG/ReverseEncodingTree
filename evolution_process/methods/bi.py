@@ -210,7 +210,7 @@ class Reproduction(DefaultReproduction):
             # construct the topology of the phenotypical network
             for index_1 in range(pop_size):
                 cluster_1 = genome_clusters[index_1]
-                for index_2 in range(pop_size):
+                for index_2 in range(index_1 + 1, pop_size):
                     cluster_2 = genome_clusters[index_2]
 
                     if distance_between_two_matrices(cluster_1[0].feature_matrix, cluster_2[0].feature_matrix) \
@@ -289,7 +289,7 @@ class Reproduction(DefaultReproduction):
 
             for index_1 in range(pop_size):
                 genome_1 = new_genomes[index_1]
-                for index_2 in range(pop_size):
+                for index_2 in range(index_1 + 1, pop_size):
                     genome_2 = new_genomes[index_2]
 
                     if genome_1.distance(genome_2, self.genome_config) > self.reproduction_config.min_distance:

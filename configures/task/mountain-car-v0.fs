@@ -1,16 +1,16 @@
-#--- parameters for the XOR-2 experiment ---#
+# neat-python configuration for the LunarLander-v2 environment on OpenAI Gym
 
 [NEAT]
+pop_size              = 20
 fitness_criterion     = max
-fitness_threshold     = 3.9999
-pop_size              = 90
-reset_on_extinction   = False
+fitness_threshold     = -0.6
+reset_on_extinction   = 0
 
 [DefaultGenome]
 # node activation options
-activation_default      = sigmoid
+activation_default      = tanh
 activation_mutate_rate  = 0.0
-activation_options      = sigmoid
+activation_options      = tanh
 
 # node aggregation options
 aggregation_default     = sum
@@ -28,11 +28,11 @@ bias_replace_rate       = 0.1
 
 # genome compatibility options
 compatibility_disjoint_coefficient = 1.0
-compatibility_weight_coefficient   = 0.5
+compatibility_weight_coefficient   = 1.0
 
 # connection add/remove rates
-conn_add_prob           = 0.5
-conn_delete_prob        = 0.5
+conn_add_prob           = 0.9
+conn_delete_prob        = 0.2
 
 # connection enable options
 enabled_default         = True
@@ -40,15 +40,16 @@ enabled_mutate_rate     = 0.01
 
 feed_forward            = True
 initial_connection      = fs_neat
+# options (unconnected, fs_neat, full)
 
 # node add/remove rates
-node_add_prob           = 0.2
+node_add_prob           = 0.9
 node_delete_prob        = 0.2
 
 # network parameters
 num_hidden              = 0
 num_inputs              = 2
-num_outputs             = 1
+num_outputs             = 3
 
 # node response options
 response_init_mean      = 1.0
@@ -62,8 +63,8 @@ response_replace_rate   = 0.0
 # connection weight options
 weight_init_mean        = 0.0
 weight_init_stdev       = 1.0
-weight_max_value        = 30
-weight_min_value        = -30
+weight_max_value        = 30.
+weight_min_value        = -30.
 weight_mutate_power     = 0.5
 weight_mutate_rate      = 0.8
 weight_replace_rate     = 0.1
@@ -74,7 +75,7 @@ compatibility_threshold = 3.0
 [DefaultStagnation]
 species_fitness_func = max
 max_stagnation       = 20
-species_elitism      = 2
+species_elitism      = 4
 
 [DefaultReproduction]
 elitism            = 2

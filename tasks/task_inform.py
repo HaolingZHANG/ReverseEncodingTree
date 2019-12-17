@@ -31,6 +31,7 @@ class BIO_TYPE(Enum):
 
 class GAME_TYPE(Enum):
     CartPole_v0 = 0
+    MountainCar_v0 = 1
 
 
 class Logic(object):
@@ -248,8 +249,14 @@ class Game(object):
         game_environment = None
         if game_type == GAME_TYPE.CartPole_v0:
             game_environment = gym.make("CartPole-v0").unwrapped
+            self.filename = "cart-pole-v0."
+            self.node_name = {-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'}
+        elif game_type == GAME_TYPE.MountainCar_v0:
+            game_environment = gym.make("MountainCar-v0").unwrapped
+            self.filename = "mountain-car-v0."
+            self.node_name = {-1: 'feature 1', -2: 'feature 2', 0: 'action 1', 1: 'action 2', 2: 'action 3'}
 
-        # load evolution process.
+            # load evolution process.
         fitter = FitDevice(FitProcess())
         fitter.set_environment(environment=game_environment,
                                input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
@@ -259,29 +266,28 @@ class Game(object):
         # load configuration.
         config = None
         if method_type == METHOD_TYPE.FS:
+            self.filename += "fs"
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/cart-pole-v0.fs")
-            self.filename = "CartPole-v0.fs"
+                                 "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.BI:
+            self.filename += "bi"
             config = neat.Config(genome.GlobalGenome, bi.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/cart-pole-v0.bi")
-            self.filename = "CartPole-v0.bi"
+                                 "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.GSS:
+            self.filename += "gss"
             config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/cart-pole-v0.gss")
-            self.filename = "CartPole-v0.gss"
+                                 "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.TRI:
+            self.filename += "tri"
             config = neat.Config(genome.GlobalGenome, tri.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/cart-pole-v0.tri")
-            self.filename = "CartPole-v0.tri"
+                                 "../configures/task/" + self.filename)
 
         # initialize the NeuroEvolution
-        self.operator = Operator(config=config, fitter=fitter,
-                                 node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
+        self.operator = Operator(config=config, fitter=fitter, node_names=self.node_name,
                                  max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
                                  output_path="../output/")
 
