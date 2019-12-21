@@ -6,7 +6,7 @@ import neat
 from evolution_process.bean import genome, species_set
 from evolution_process.bean.phenotyper import create_drosophila_melanogaster, screen
 from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
-from evolution_process.methods import bi, tri, gs
+from evolution_process.methods import bi, gss
 from utils.operator import Operator
 
 
@@ -76,15 +76,10 @@ class Logic(object):
                                  "../configures/task/logic.bi")
             self.filename += "bi"
         elif method_type == METHOD_TYPE.GSS:
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
+            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.gss")
             self.filename += "gss"
-        elif method_type == METHOD_TYPE.TRI:
-            config = neat.Config(genome.GlobalGenome, tri.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.tri")
-            self.filename += "tri"
 
         # initialize the NeuroEvolution
         self.operator = Operator(config=config, fitter=fitter,
@@ -101,7 +96,7 @@ class Logic(object):
         generations = []
         time = 0
         while True:
-            # try:
+            try:
                 if times > 1:
                     # print current times.
                     print()
@@ -112,11 +107,6 @@ class Logic(object):
 
                 self.operator.obtain_winner()
                 actual_generation, fit = self.operator.get_actual_generation()
-                if not fit:
-                    # reset the hyper-parameters
-                    self.operator.reset()
-                    continue
-                generations.append(actual_generation)
 
                 time += 1
                 if time >= times:
@@ -124,9 +114,14 @@ class Logic(object):
 
                 # reset the hyper-parameters
                 self.operator.reset()
-            # except Exception or ValueError:
-            #     print("something error.")
-            #     self.operator.reset()
+
+                if not fit:
+                    continue
+
+                generations.append(actual_generation)
+            except Exception or ValueError:
+                print("something error.")
+                self.operator.reset()
 
         counts = [0 for _ in range(self.max_generation + 1)]
         for generation in generations:
@@ -176,15 +171,10 @@ class Biology(object):
                                  "../configures/task/bio.bi")
             self.filename += "bi"
         elif method_type == METHOD_TYPE.GSS:
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
+            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/bio.gss")
             self.filename += "gs"
-        elif method_type == METHOD_TYPE.TRI:
-            config = neat.Config(genome.GlobalGenome, tri.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.tri")
-            self.filename += "tri"
 
         # initialize the NeuroEvolution
         self.operator = Operator(config=config, fitter=fitter,
@@ -213,11 +203,6 @@ class Biology(object):
 
                 self.operator.obtain_winner()
                 actual_generation, fit = self.operator.get_actual_generation()
-                if not fit:
-                    # reset the hyper-parameters
-                    self.operator.reset()
-                    continue
-                generations.append(actual_generation)
 
                 time += 1
                 if time >= times:
@@ -225,6 +210,11 @@ class Biology(object):
 
                 # reset the hyper-parameters
                 self.operator.reset()
+
+                if not fit:
+                    continue
+
+                generations.append(actual_generation)
             except Exception or ValueError:
                 print("something error.")
                 self.operator.reset()
@@ -277,12 +267,7 @@ class Game(object):
                                  "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.GSS:
             self.filename += "gss"
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/" + self.filename)
-        elif method_type == METHOD_TYPE.TRI:
-            self.filename += "tri"
-            config = neat.Config(genome.GlobalGenome, tri.Reproduction,
+            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/" + self.filename)
 
@@ -311,11 +296,6 @@ class Game(object):
 
                 self.operator.obtain_winner()
                 actual_generation, fit = self.operator.get_actual_generation()
-                if not fit:
-                    # reset the hyper-parameters
-                    self.operator.reset()
-                    continue
-                generations.append(actual_generation)
 
                 time += 1
                 if time >= times:
@@ -323,6 +303,11 @@ class Game(object):
 
                 # reset the hyper-parameters
                 self.operator.reset()
+
+                if not fit:
+                    continue
+
+                generations.append(actual_generation)
             except Exception or ValueError:
                 print("something error.")
                 self.operator.reset()

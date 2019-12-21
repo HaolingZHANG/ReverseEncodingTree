@@ -2,8 +2,8 @@
 
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 3.9999
-pop_size              = 10
+fitness_threshold     = 3.999
+pop_size              = 12
 reset_on_extinction   = False
 
 [GlobalGenome]
@@ -77,6 +77,6 @@ species_elitism      = 2
 
 [Reproduction]
 init_distance    = 2.5
-min_distance     = 0.2
+min_distance     = 0.1
 correlation_rate = 0.5
 search_count     = 30

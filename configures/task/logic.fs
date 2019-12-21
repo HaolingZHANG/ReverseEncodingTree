@@ -2,8 +2,8 @@
 
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 3.9999
-pop_size              = 90
+fitness_threshold     = 3.999
+pop_size              = 132
 reset_on_extinction   = False
 
 [DefaultGenome]
@@ -37,7 +37,6 @@ conn_delete_prob        = 0.5
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
-
 feed_forward            = True
 initial_connection      = fs_neat
 

@@ -3,7 +3,7 @@
 [NEAT]
 pop_size              = 3
 fitness_criterion     = max
-fitness_threshold     = 0.99
+fitness_threshold     = 0.999
 reset_on_extinction   = 0
 
 [GlobalGenome]

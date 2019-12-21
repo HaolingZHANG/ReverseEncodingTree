@@ -196,9 +196,9 @@ class Reproduction(DefaultReproduction):
                     fitnesses.append(genome_cluster[index].fitness)
 
                 if len(fitnesses) > 1:
-                    correlations.append(pandas.Series(distances).corr(pandas.Series(fitnesses)))
+                    correlations.append(round(pandas.Series(distances).corr(pandas.Series(fitnesses)), 2))
                 else:
-                    correlations.append(-1)
+                    correlations.append(-1.00)
 
                 for index in range(len(correlations)):
                     if math.isnan(correlations[index]):

@@ -27,7 +27,7 @@ class CartPole_v0_Attacker(object):
         self.epsilon = epsilon
         self.attack_type = attack_type
 
-        # Initialize time step (for updating every UPDATE_EVERY steps)
+        # initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
         # discount factor for DQN agent
         self.gamma = 0.99
@@ -45,8 +45,7 @@ class CartPole_v0_Attacker(object):
         if need_attack:
             size = len(attack_observation)
             if self.attack_type == ATTACK_TYPE.Normal:
-                add_noise_level = 0.5
-                attack_observation += numpy.random.normal(add_noise_level, 0.1, size)
+                attack_observation += numpy.random.normal(0.5, 0.1, size)
             elif self.attack_type == ATTACK_TYPE.Reverse:
                 # reverse the ray tracer, but the keep the 2-dim velocity
                 attack_observation = attack_observation[::-1][: size]

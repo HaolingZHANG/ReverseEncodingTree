@@ -1,7 +1,7 @@
 # neat-python configuration for the LunarLander-v2 environment on OpenAI Gym
 
 [NEAT]
-pop_size              = 5
+pop_size              = 20
 fitness_criterion     = max
 fitness_threshold     = -0.6
 reset_on_extinction   = 0
@@ -37,10 +37,7 @@ conn_delete_prob        = 0.2
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
-
 feed_forward            = True
-initial_connection      = fs_neat
-# options (unconnected, fs_neat, full)
 
 # node add/remove rates
 node_add_prob           = 0.9
@@ -50,7 +47,7 @@ node_delete_prob        = 0.2
 num_hidden              = 0
 num_inputs              = 2
 num_outputs             = 3
-max_node_num            = 8
+max_node_num            = 6
 
 # node response options
 response_init_mean      = 1.0
