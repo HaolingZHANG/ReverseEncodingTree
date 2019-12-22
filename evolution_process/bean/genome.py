@@ -33,7 +33,10 @@ def create_center_new(feature_matrix_1, feature_matrix_2, config, key):
     new_genome = GlobalGenome(key)
     new_genome.feature_matrix_new(new_feature_matrix, config)
 
-    return new_genome
+    if create_check(new_genome, config):
+        return new_genome
+
+    return None
 
 
 def create_golden_section_new(feature_matrix_1, feature_matrix_2, config, key):
@@ -59,7 +62,10 @@ def create_golden_section_new(feature_matrix_1, feature_matrix_2, config, key):
     new_genome = GlobalGenome(key)
     new_genome.feature_matrix_new(new_feature_matrix, config)
 
-    return new_genome
+    if create_check(new_genome, config):
+        return new_genome
+
+    return None
 
 
 def create_near_new(genome, config, key):
@@ -79,6 +85,19 @@ def create_near_new(genome, config, key):
     new_genome.set_feature_matrix(config)
 
     return new_genome
+
+
+def create_check(genome, genome_config):
+
+    try:
+        if genome_config.feed_forward:
+            neat.nn.FeedForwardNetwork.create(genome, TempConfig(genome_config))
+        else:
+            neat.nn.RecurrentNetwork.create(genome, TempConfig(genome_config))
+    except KeyError:
+        return False
+
+    return True
 
 
 def distance_between_two_matrices(matrix_1, matrix_2):
@@ -327,3 +346,9 @@ class GlobalGenome(neat.DefaultGenome):
             s += "\n\t" + str(row)
 
         return s
+
+
+class TempConfig(object):
+
+    def __init__(self, genome_config):
+        self.genome_config = genome_config

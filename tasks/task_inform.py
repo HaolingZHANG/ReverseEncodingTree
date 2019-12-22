@@ -32,6 +32,7 @@ class BIO_TYPE(Enum):
 class GAME_TYPE(Enum):
     CartPole_v0 = 0
     MountainCar_v0 = 1
+    LunarLander_v2 = 2
 
 
 class Logic(object):
@@ -245,6 +246,10 @@ class Game(object):
             game_environment = gym.make("MountainCar-v0").unwrapped
             self.filename = "mountain-car-v0."
             self.node_name = {-1: 'feature 1', -2: 'feature 2', 0: 'action 1', 1: 'action 2', 2: 'action 3'}
+        elif game_type == GAME_TYPE.LunarLander_v2:
+            game_environment = gym.make("LunarLander-v2")
+            self.filename = "lunar-lander-v2."
+            self.node_name = {-1: '1', -2: '2', -3: '3', -4: '4', -5: '5', -6: '6', -7: '7', -8: '8', 0: 'fire engine'}
 
             # load evolution process.
         fitter = FitDevice(FitProcess())
