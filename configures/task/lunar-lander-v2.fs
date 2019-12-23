@@ -1,9 +1,9 @@
 # neat-python configuration for the LunarLander-v2 environment on OpenAI Gym
 
 [NEAT]
-pop_size              = 100
+pop_size              = 20
 fitness_criterion     = max
-fitness_threshold     = 1
+fitness_threshold     = -0.2
 reset_on_extinction   = 0
 
 [DefaultGenome]
@@ -52,7 +52,7 @@ num_outputs             = 1
 
 # node response options
 response_init_mean      = 1.0
-response_init_stdev     = 0.0
+response_init_stdev     = 3.0
 response_max_value      = 30.0
 response_min_value      = -30.0
 response_mutate_power   = 0.0
@@ -61,7 +61,7 @@ response_replace_rate   = 0.0
 
 # connection weight options
 weight_init_mean        = 0.0
-weight_init_stdev       = 1.0
+weight_init_stdev       = 3.0
 weight_max_value        = 30.
 weight_min_value        = -30.
 weight_mutate_power     = 0.5

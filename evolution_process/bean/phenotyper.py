@@ -94,14 +94,21 @@ def create_phenotypes(gene_count, death_types=None, influences=None):
 
 
 def screen(inputs, outputs, selection_rate=1):
-    if selection_rate < 1:
-        selected_inputs, selected_outputs = [], []
-        interval = math.ceil(1 / selection_rate)
-        for index, (data_input, data_output) in enumerate(zip(inputs, outputs)):
-            if index % interval == 0:
-                selected_inputs.append(data_input)
-                selected_outputs.append(data_output)
+    selected_inputs, selected_outputs = [], []
+    interval = math.ceil(1 / selection_rate)
+    for index, (data_input, data_output) in enumerate(zip(inputs, outputs)):
+        if index % interval == 0:
+            selected_inputs.append(data_input)
+            selected_outputs.append(data_output)
 
-        return selected_inputs, selected_outputs
+    return selected_inputs, selected_outputs
 
-    return inputs, outputs
+
+def select(inputs, outputs, selections):
+    selected_inputs, selected_outputs = [], []
+    for index, (data_input, data_output) in enumerate(zip(inputs, outputs)):
+        if index in selections:
+            selected_inputs.append(data_input)
+            selected_outputs.append(data_output)
+
+    return selected_inputs, selected_outputs

@@ -2,7 +2,7 @@
 
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = -81
+fitness_threshold     = -32
 pop_size              = 10
 reset_on_extinction   = False
 
@@ -44,10 +44,10 @@ node_add_prob           = 0.2
 node_delete_prob        = 0.2
 
 # network parameters
-num_hidden              = 5
+num_hidden              = 2
 num_inputs              = 4
 num_outputs             = 4
-max_node_num            = 20
+max_node_num            = 12
 
 # node response options
 response_init_mean      = 1.0
@@ -76,8 +76,7 @@ max_stagnation       = 20
 species_elitism      = 2
 
 [Reproduction]
-elitism            = 2
-survival_threshold = 0.2
-init_distance      = 7
-min_distance       = 0.1
-search_count       = 20
+init_distance    = 7
+min_distance     = 0.1
+correlation_rate = 0.5
+search_count     = 30

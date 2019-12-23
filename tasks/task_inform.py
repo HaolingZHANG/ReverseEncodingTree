@@ -4,7 +4,7 @@ import gym
 import neat
 
 from evolution_process.bean import genome, species_set
-from evolution_process.bean.phenotyper import create_drosophila_melanogaster, screen
+from evolution_process.bean.phenotyper import create_drosophila_melanogaster, screen, select
 from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
 from evolution_process.methods import bi, gss
 from utils.operator import Operator
@@ -31,8 +31,7 @@ class BIO_TYPE(Enum):
 
 class GAME_TYPE(Enum):
     CartPole_v0 = 0
-    MountainCar_v0 = 1
-    LunarLander_v2 = 2
+    LunarLander_v2 = 1
 
 
 class Logic(object):
@@ -137,7 +136,7 @@ class Logic(object):
 class Biology(object):
 
     def __init__(self, method_type, bio_type,
-                 max_generation, selection_ratio=1,
+                 max_generation, selection_ratio=1, selections=None,
                  display_results=False, checkpoint=-1, stdout=False):
 
         data_inputs = None
@@ -153,9 +152,12 @@ class Biology(object):
 
         # selection if requested.
         if selection_ratio < 1:
-            data_inputs, data_outputs = screen(data_inputs, data_outputs, selection_ratio)
+            if selections is None:
+                data_inputs, data_outputs = screen(data_inputs, data_outputs, selection_ratio)
+            else:
+                data_inputs, data_outputs = select(data_inputs, data_outputs, selections)
 
-        # load evolution process.
+                # load evolution process.
         fitter = FitDevice(FitProcess(init_fitness=0, eval_type=EVAL_TYPE.ManhattanDistance))
         fitter.set_dataset({"i": data_inputs, "o": data_outputs})
 
@@ -242,10 +244,6 @@ class Game(object):
             game_environment = gym.make("CartPole-v0").unwrapped
             self.filename = "cart-pole-v0."
             self.node_name = {-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'}
-        elif game_type == GAME_TYPE.MountainCar_v0:
-            game_environment = gym.make("MountainCar-v0").unwrapped
-            self.filename = "mountain-car-v0."
-            self.node_name = {-1: 'feature 1', -2: 'feature 2', 0: 'action 1', 1: 'action 2', 2: 'action 3'}
         elif game_type == GAME_TYPE.LunarLander_v2:
             game_environment = gym.make("LunarLander-v2")
             self.filename = "lunar-lander-v2."

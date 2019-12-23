@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # load evolution process.
     fitter = FitDevice(FitProcess())
 
-    fitter.set_environment(environment=environment, episode_steps=1000, episode_generation=5,
+    fitter.set_environment(environment=environment, episode_steps=300, episode_generation=5,
                            input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
 
     # initialize the NeuroEvolution
