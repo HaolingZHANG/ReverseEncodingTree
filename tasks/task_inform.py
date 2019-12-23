@@ -249,13 +249,11 @@ class Game(object):
             self.filename = "lunar-lander-v2."
             self.node_name = {-1: '1', -2: '2', -3: '3', -4: '4', -5: '5', -6: '6', -7: '7', -8: '8', 0: 'fire engine'}
 
-            # load evolution process.
         fitter = FitDevice(FitProcess())
         fitter.set_environment(environment=game_environment,
                                input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
                                episode_steps=episode_steps, episode_generation=episode_generation,
                                attacker=attacker, noise_level=noise_level)
-
         # load configuration.
         config = None
         if method_type == METHOD_TYPE.FS:

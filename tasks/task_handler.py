@@ -95,22 +95,22 @@ def run_cart_pole_v0_with_attack():
     save_distribution(counts, "../output/", "CartPole_v0", METHOD_TYPE.GSS)
 
 
-def run_mountain_car_v0():
-    task = Game(method_type=METHOD_TYPE.FS, game_type=GAME_TYPE.MountainCar_v0, episode_steps=200, episode_generation=5,
+def run_lunar_lander_v0():
+    task = Game(method_type=METHOD_TYPE.FS, game_type=GAME_TYPE.LunarLander_v2, episode_steps=200, episode_generation=5,
                 max_generation=500, display_results=False)
     generations, counts = task.run(1000)
-    save_distribution(counts, "../output/", "MountainCar_v0", METHOD_TYPE.FS)
+    save_distribution(counts, "../output/", "LunarLander_v2", METHOD_TYPE.FS)
 
-    task = Game(method_type=METHOD_TYPE.BI, game_type=GAME_TYPE.MountainCar_v0, episode_steps=200, episode_generation=5,
+    task = Game(method_type=METHOD_TYPE.BI, game_type=GAME_TYPE.LunarLander_v2, episode_steps=200, episode_generation=5,
                 max_generation=500, display_results=False)
     generations, counts = task.run(1000)
-    save_distribution(counts, "../output/", "MountainCar_v0", METHOD_TYPE.BI)
+    save_distribution(counts, "../output/", "LunarLander_v2", METHOD_TYPE.BI)
 
-    task = Game(method_type=METHOD_TYPE.GSS, game_type=GAME_TYPE.MountainCar_v0, episode_steps=200, episode_generation=5,
+    task = Game(method_type=METHOD_TYPE.GSS, game_type=GAME_TYPE.LunarLander_v2, episode_steps=200, episode_generation=5,
                 max_generation=500, display_results=False)
     generations, counts = task.run(1000)
-    save_distribution(counts, "../output/", "MountainCar_v0", METHOD_TYPE.GSS)
+    save_distribution(counts, "../output/", "LunarLander_v2", METHOD_TYPE.GSS)
 
 
 if __name__ == '__main__':
-    run_xor()
+    run_pendulum_v0()

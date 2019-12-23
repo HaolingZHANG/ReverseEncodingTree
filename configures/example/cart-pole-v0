@@ -41,8 +41,7 @@ enabled_default         = True
 enabled_mutate_rate     = 0.01
 
 feed_forward            = True
-initial_connection      = full
-# options (unconnected, fs_neat, full)
+initial_connection      = fs_neat
 
 # node add/remove rates
 node_add_prob           = 0.9

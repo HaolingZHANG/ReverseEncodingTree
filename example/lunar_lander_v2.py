@@ -31,7 +31,7 @@ if __name__ == '__main__':
                         node_names={-1: '1', -2: '2', -3: '3', -4: '4',
                                     -5: '5', -6: '6', -7: '7', -8: '8',
                                     0: 'fire engine'},
-                        max_generation=100, output_path="../output/")
+                        max_generation=1000, output_path="../output/")
 
     # obtain the winning genome.
     operator.obtain_winner()
