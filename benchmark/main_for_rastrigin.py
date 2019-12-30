@@ -60,4 +60,5 @@ if __name__ == '__main__':
     min_position, min_height = get_min(fitness_landscape)
     obtain_ga(min_position, 15)
     obtain_pbil()
+    obtain_cmaes(min_position, 28)
     obtain_bi()
