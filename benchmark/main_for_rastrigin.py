@@ -1,45 +1,45 @@
 from benchmark.methods import inherent
-from benchmark.methods.evolutor import GA, PBIL, BI, TRI
+from benchmark.methods.evolutor import GA, PBIL, BI, CMAES
 from benchmark.methods.show_me_results import clime_by_generation, get_mount_everest
 
 
 def obtain_ga(start_position, stride):
     _, _, landscape = get_mount_everest("./dataset/rastrigin.csv")
-    function = GA(size=20, scope=len(landscape), start_position=start_position, stride=stride)
-    function.evolute(terrain=landscape, generations=6, evolute_type=inherent.MAX)
+    function = GA(size=90, scope=len(landscape), start_position=start_position, stride=stride)
+    function.evolute(terrain=landscape, generations=200, evolute_type=inherent.MAX)
 
-    for i in range(5):
+    for i in [0, 49, 99, 149, 199]:
         clime_by_generation(function.recorder.get_result(), "GA", i, False,
                             mount_path="./dataset/rastrigin.csv", save_path="./results/")
 
 
 def obtain_pbil():
     _, _, landscape = get_mount_everest("./dataset/rastrigin.csv")
-    function = PBIL(size=20, scope=len(landscape))
-    function.evolute(terrain=landscape, generations=6, evolute_type=inherent.MAX)
+    function = PBIL(size=90, scope=len(landscape))
+    function.evolute(terrain=landscape, generations=80, evolute_type=inherent.MAX)
 
-    for i in range(5):
+    for i in [0, 19, 39, 59, 79]:
         clime_by_generation(function.recorder.get_result(), "PBIL", i, False,
                             mount_path="./dataset/rastrigin.csv", save_path="./results/")
 
 
+def obtain_cmaes(start_position, stride):
+    _, _, landscape = get_mount_everest("./dataset/rastrigin.csv")
+    function = CMAES(size=90, scope=len(landscape), start_position=start_position, stride=stride)
+    function.evolute(terrain=landscape, generations=20, evolute_type=inherent.MAX)
+
+    for i in [0, 4, 9, 14, 19]:
+        clime_by_generation(function.recorder.get_result(), "CMA-ES", i, False,
+                            mount_path="./dataset/mount_everest.csv", save_path="./results/")
+
+
 def obtain_bi():
     _, _, landscape = get_mount_everest("./dataset/rastrigin.csv")
-    function = BI(size=20, init_interval=40, min_interval=3, scope=len(landscape))
-    function.evolute(terrain=landscape, generations=6, evolute_type=inherent.MAX)
+    function = BI(size=10, init_interval=40, min_interval=3, scope=len(landscape))
+    function.evolute(terrain=landscape, generations=8, evolute_type=inherent.MAX)
 
-    for i in range(5):
-        clime_by_generation(function.recorder.get_result(), "BI", i, False,
-                            mount_path="./dataset/rastrigin.csv", save_path="./results/")
-
-
-def obtain_tri():
-    _, _, landscape = get_mount_everest("./dataset/rastrigin.csv")
-    function = TRI(size=20, init_interval=40, min_interval=3, scope=len(landscape))
-    function.evolute(terrain=landscape, generations=6, evolute_type=inherent.MAX)
-
-    for i in range(5):
-        clime_by_generation(function.recorder.get_result(), "TRI", i, False,
+    for i in [0, 1, 3, 5, 7]:
+        clime_by_generation(function.recorder.get_result(), "RST", i, False,
                             mount_path="./dataset/rastrigin.csv", save_path="./results/")
 
 
@@ -61,4 +61,3 @@ if __name__ == '__main__':
     obtain_ga(min_position, 15)
     obtain_pbil()
     obtain_bi()
-    obtain_tri()

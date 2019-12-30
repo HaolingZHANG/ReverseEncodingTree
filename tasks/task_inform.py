@@ -3,18 +3,18 @@ from enum import Enum
 import gym
 import neat
 
-from evolution_process.bean import genome, species_set
-from evolution_process.bean.phenotyper import create_drosophila_melanogaster, screen, select
-from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
-from evolution_process.methods import bi, gss
+from evolution.bean import genome, species_set
+from evolution.bean.phenotyper import create_drosophila_melanogaster, screen, select
+from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
+from evolution.methods import bi, gs
 from utils.operator import Operator
 
 
 class METHOD_TYPE(Enum):
-    FS = 0
-    BI = 1
-    GSS = 2
-    TRI = 3
+    N = 0
+    FS = 1
+    BI = 2
+    GS = 3
 
 
 class LOGIC_TYPE(Enum):
@@ -26,7 +26,7 @@ class LOGIC_TYPE(Enum):
 
 class BIO_TYPE(Enum):
     DROSOPHILA_MELANOGASTER = 1
-    FLOWER = 2
+    FLOWER_COLOR = 2
 
 
 class GAME_TYPE(Enum):
@@ -38,6 +38,17 @@ class Logic(object):
 
     def __init__(self, method_type, logic_type,
                  max_generation, display_results=False, checkpoint=-1, stdout=False):
+        """
+        initialize the logical task.
+
+        :param method_type: the evolution strategy, FS-NEAT, Bi-NEAT, or GS-NEAT.
+        :param logic_type: the task type, IMPLY, NAND, NOR, or XOR.
+        :param max_generation: maximum generation of the evolution strategy,
+                               if the generation exceeds the maximum, it will be terminated.
+        :param display_results: whether result visualization is required.
+        :param checkpoint: check the statistics point.
+        :param stdout: Whether outputting the genome information in the process is required.
+        """
 
         data_inputs = None
         data_outputs = None
@@ -65,7 +76,12 @@ class Logic(object):
 
         # load configuration.
         config = None
-        if method_type == METHOD_TYPE.FS:
+        if method_type == METHOD_TYPE.N:
+            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/logic.n")
+            self.filename += "fs"
+        elif method_type == METHOD_TYPE.FS:
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.fs")
@@ -75,11 +91,11 @@ class Logic(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.bi")
             self.filename += "bi"
-        elif method_type == METHOD_TYPE.GSS:
-            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
+        elif method_type == METHOD_TYPE.GS:
+            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.gss")
-            self.filename += "gss"
+                                 "../configures/task/logic.gs")
+            self.filename += "gs"
 
         # initialize the NeuroEvolution
         self.operator = Operator(config=config, fitter=fitter,
@@ -93,6 +109,13 @@ class Logic(object):
         self.max_generation = max_generation
 
     def run(self, times):
+        """
+        multi-run task.
+
+        :param times: running times.
+
+        :return: results of generation and counts of each generation in the requested times.
+        """
         generations = []
         time = 0
         while True:
@@ -138,6 +161,19 @@ class Biology(object):
     def __init__(self, method_type, bio_type,
                  max_generation, selection_ratio=1, selections=None,
                  display_results=False, checkpoint=-1, stdout=False):
+        """
+        initialize the biological task.
+
+        :param method_type: the evolution strategy, FS-NEAT, Bi-NEAT, or GS-NEAT.
+        :param bio_type: the task type, DROSOPHILA_MELANOGASTER or FLOWER_COLOR.
+        :param max_generation: maximum generation of the evolution strategy,
+                               if the generation exceeds the maximum, it will be terminated.
+        :param selection_ratio: selection rate of dataset.
+        :param selections: selection position of dataset.
+        :param display_results: whether result visualization is required.
+        :param checkpoint: check the statistics point.
+        :param stdout: Whether outputting the genome information in the process is required.
+        """
 
         data_inputs = None
         data_outputs = None
@@ -145,10 +181,10 @@ class Biology(object):
         if bio_type == BIO_TYPE.DROSOPHILA_MELANOGASTER:
             data_inputs, data_outputs = create_drosophila_melanogaster()
             self.filename = "drosophila_melanogaster."
-        # elif bio_type == BIO_TYPE.FLOWER:
+        # elif bio_type == BIO_TYPE.FLOWER_COLOR:
         #     data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
         #     data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
-        #     self.filename = "flower."
+        #     self.filename = "flower_color."
 
         # selection if requested.
         if selection_ratio < 1:
@@ -163,7 +199,12 @@ class Biology(object):
 
         # load configuration.
         config = None
-        if method_type == METHOD_TYPE.FS:
+        if method_type == METHOD_TYPE.N:
+            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/bio.n")
+            self.filename += "n"
+        elif method_type == METHOD_TYPE.FS:
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/bio.fs")
@@ -173,10 +214,10 @@ class Biology(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/bio.bi")
             self.filename += "bi"
-        elif method_type == METHOD_TYPE.GSS:
-            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
+        elif method_type == METHOD_TYPE.GS:
+            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.gss")
+                                 "../configures/task/bio.gs")
             self.filename += "gs"
 
         # initialize the NeuroEvolution
@@ -192,6 +233,13 @@ class Biology(object):
         self.max_generation = max_generation
 
     def run(self, times):
+        """
+        multi-run task.
+
+        :param times: running times.
+
+        :return: results of generation and counts of each generation in the requested times.
+        """
         generations = []
         time = 0
         while True:
@@ -238,6 +286,21 @@ class Game(object):
                  episode_steps, episode_generation, max_generation,
                  attacker=None, noise_level=-1,
                  display_results=False, checkpoint=-1, stdout=False):
+        """
+        initialize the game task.
+
+        :param method_type: the evolution strategy, FS-NEAT, Bi-NEAT, or GS-NEAT.
+        :param game_type: the task type, CartPole_v0 or LunarLander_v2.
+        :param episode_steps: step parameter of game task
+        :param episode_generation:  generation parameter of game task.
+        :param max_generation: maximum generation of the evolution strategy,
+                               if the generation exceeds the maximum, it will be terminated.
+        :param attacker: noise attacker, see evolution/bean/attacker.py.
+        :param noise_level: noise level.
+        :param display_results: whether result visualization is required.
+        :param checkpoint: check the statistics point.
+        :param stdout: Whether outputting the genome information in the process is required.
+        """
 
         game_environment = None
         if game_type == GAME_TYPE.CartPole_v0:
@@ -256,7 +319,12 @@ class Game(object):
                                attacker=attacker, noise_level=noise_level)
         # load configuration.
         config = None
-        if method_type == METHOD_TYPE.FS:
+        if method_type == METHOD_TYPE.N:
+            self.filename += "n"
+            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/" + self.filename)
+        elif method_type == METHOD_TYPE.FS:
             self.filename += "fs"
             config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -266,9 +334,9 @@ class Game(object):
             config = neat.Config(genome.GlobalGenome, bi.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/" + self.filename)
-        elif method_type == METHOD_TYPE.GSS:
-            self.filename += "gss"
-            config = neat.Config(genome.GlobalGenome, gss.Reproduction,
+        elif method_type == METHOD_TYPE.GS:
+            self.filename += "gs"
+            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/" + self.filename)
 
@@ -283,6 +351,13 @@ class Game(object):
         self.max_generation = max_generation
 
     def run(self, times):
+        """
+        multi-run task.
+
+        :param times: running times.
+
+        :return: results of generation and counts of each generation in the requested times.
+        """
         generations = []
         time = 0
         while True:
@@ -333,14 +408,14 @@ def save_distribution(counts, parent_path, task_name, method_type):
     :param method_type: type of method in evolution process.
     """
     path = parent_path + task_name + "."
-    if method_type == METHOD_TYPE.FS:
+    if method_type == METHOD_TYPE.N:
+        path += "n.csv"
+    elif method_type == METHOD_TYPE.FS:
         path += "fs.csv"
     elif method_type == METHOD_TYPE.BI:
         path += "bi.csv"
-    elif method_type == METHOD_TYPE.GSS:
-        path += "gss.csv"
-    elif method_type == METHOD_TYPE.TRI:
-        path += "tri.csv"
+    elif method_type == METHOD_TYPE.GS:
+        path += "gs.csv"
 
     with open(path, "w", encoding="utf-8") as save_file:
         for index, value in enumerate(counts):

@@ -1,8 +1,8 @@
 import gym
 import neat
 
-from evolution_process.bean.attacker import CartPole_v0_Attacker, ATTACK_TYPE
-from evolution_process.evolutor import FitDevice, FitProcess, TYPE_CORRECT
+from evolution.bean.attacker import CartPole_v0_Attacker, ATTACK_TYPE
+from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
 from utils.operator import Operator
 
 has_environment = False

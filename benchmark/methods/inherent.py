@@ -26,6 +26,20 @@ class Population(object):
         """
         self.population = copy.deepcopy(old_population)
 
+    def create_by_normal(self, size, start_position, stride, scope):
+        self.population = [[], [], []]
+        populations_list = numpy.random.normal(0, stride, (2, size * size))
+        for position in populations_list.T:
+            actual_position = [int(start_position[0] + position[0]), int(start_position[1] + position[1])]
+            if actual_position[0] in self.population[0] and actual_position[1] in self.population[1]:
+                continue
+            elif 0 <= actual_position[0] < scope and 0 <= actual_position[1] < scope:
+                self.population[0].append(actual_position[0])
+                self.population[1].append(actual_position[1])
+                self.population[2].append(0)
+                if len(self.population[0]) == size:
+                    break
+
     def create_by_local(self, size, start_position, stride, scope):
         """
         create the population by local random.

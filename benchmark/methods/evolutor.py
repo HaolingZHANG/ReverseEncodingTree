@@ -2,6 +2,10 @@ import random
 
 import math
 import numpy
+import numpy as np
+import numpy.linalg as la
+
+from sklearn.cluster import KMeans
 
 from benchmark.methods import inherent
 from benchmark.methods.inherent import Population, Recorder
@@ -63,6 +67,7 @@ class GA(object):
 
             self.population = new_population
             self.recorder.add_population(self.population)
+            print("generation = " + str(generation))
 
 
 class PBIL(object):
@@ -192,6 +197,81 @@ class PBIL(object):
                 break
 
 
+class CMAES(object):
+
+    def __init__(self, size, scope, start_position, stride, elite_rate=0.3):
+        """
+        initialize the evolution method based on simple genetic algorithm.
+
+        :param size: population size.
+        :param scope: scope of landscape.
+        :param start_position: starting position of the population.
+        """
+        self.population = Population()
+        self.population.create_by_normal(size, start_position, stride, scope)
+        self.recorder = Recorder()
+
+        self.scope = scope
+        self.elite_rate = elite_rate
+        self.size = size
+
+    def evolute(self, terrain, generations, evolute_type):
+        """
+        evolution process.
+
+        :param terrain: landscape.
+        :param generations: count of generations.
+        :param evolute_type: evolution direction, go big or small.
+        """
+        self.population.fitness(terrain)
+        self.recorder.add_population(self.population)
+
+        for generation in range(generations):
+            self.population.save_by_sort(self.size, save_type=evolute_type)
+            current_individuals = [[], []]
+            elite_individuals = [[], []]
+
+            for index in range(self.size):
+                individual = self.population.get_individual(index)
+                if index <= int(self.size * self.elite_rate):
+                    elite_individuals[0].append(individual[0])
+                    elite_individuals[1].append(individual[1])
+                current_individuals[0].append(individual[0])
+                current_individuals[1].append(individual[1])
+
+            elite_individuals = numpy.array(elite_individuals)
+            current_individuals = numpy.array(current_individuals)
+            centered = elite_individuals - current_individuals.mean(1, keepdims=True)
+            c = (centered @ centered.T) / (int(self.size * self.elite_rate) - 1)
+            w, e = la.eigh(c)
+            new_individuals = None
+            while True:
+                try:
+                    new_individuals = elite_individuals.mean(1, keepdims=True) + (e @ np.diag(np.sqrt(w)) @
+                                                                                  np.random.normal(size=(2, self.size)))
+                except ValueError:
+                    continue
+                break
+
+            new_population = Population()
+            for position in new_individuals.T:
+                if position[0] < 0:
+                    position[0] = 0
+                elif position[0] >= self.scope:
+                    position[0] = self.scope - 1
+                if position[1] < 0:
+                    position[1] = 0
+                elif position[1] >= self.scope:
+                    position[1] = self.scope - 1
+                new_population.add_by_individual([int(position[0]), int(position[1]), 0])
+
+            new_population.fitness(terrain)
+            self.population = new_population
+
+            self.recorder.add_population(self.population)
+            print("generation = " + str(generation))
+
+
 class BI(object):
 
     def __init__(self, size, init_interval, min_interval, scope):
@@ -224,10 +304,19 @@ class BI(object):
         for generation in range(generations):
             created_population = Population()
 
+            method = KMeans(n_clusters=self.size, max_iter=self.size)
+            feature_matrices = []
             for index in range(self.size):
-                individual_1 = self.population.get_individual(index)
-                for another_index in range(self.size):
-                    individual_2 = self.population.get_individual(another_index)
+                feature_matrices.append(self.population.get_individual(index)[:-1])
+            method.fit(feature_matrices)
+            genome_clusters = [[] for _ in range(self.size)]
+            for index, cluster_index in enumerate(method.labels_):
+                genome_clusters[cluster_index].append(self.population.get_individual(index))
+
+            for index in range(self.size):
+                individual_1 = genome_clusters[index][0]
+                for another_index in range(index + 1, self.size):
+                    individual_2 = genome_clusters[another_index][0]
 
                     if evolute_type == inherent.MAX:
                         if math.sqrt(math.pow(individual_1[0] - individual_2[0], 2) +
@@ -259,8 +348,8 @@ class BI(object):
             created_population.fitness(terrain)
 
             self.population.merge_population(created_population)
-            self.population.save_by_sort(self.size, save_type=evolute_type)
             self.recorder.add_population(self.population)
+            self.population.save_by_sort(self.size, save_type=evolute_type)
             print("generation = " + str(generation))
 
     def _find_center(self, individual_1, individual_2, remains):
@@ -313,94 +402,3 @@ class BI(object):
             count += 1
             if count >= search_count:
                 return None
-
-
-class TRI:
-
-    def __init__(self, size, init_interval, min_interval, scope):
-        """
-        initialize the evolution method based on binary search with TriNet.
-
-        :param size: population size.
-        :param init_interval: minimum interval between two individuals at initialization.
-        :param min_interval: minimum interval between two individuals at each iteration.
-        :param scope: scope of landscape.
-        """
-        self.population = Population()
-        self.population.create_by_global(size=size, scope=scope, interval=init_interval)
-        self.recorder = Recorder()
-        self.scope = scope
-        self.min_interval = min_interval
-        self.size = size
-
-    def evolute(self, terrain, generations, evolute_type):
-        """
-        evolution process.
-
-        :param terrain: landscape.
-        :param generations: count of generations.
-        :param evolute_type: evolution direction, go big or small.
-        """
-        self.population.fitness(terrain)
-        self.recorder.add_population(self.population)
-
-        for generation in range(generations):
-            created_population = Population()
-
-            distance_matrix = [[float("inf") for _ in range(self.size)] for _ in range(self.size)]
-
-            for index in range(self.size):
-                individual_1 = self.population.get_individual(index)
-                for another_index in range(index + 1, self.size):
-                    individual_2 = self.population.get_individual(another_index)
-                    distance = math.sqrt(math.pow(individual_1[0] - individual_2[0], 2) +
-                                         math.pow(individual_1[1] - individual_2[1], 2))
-
-                    if distance > self.min_interval:
-                        distance_matrix[index][another_index] = distance
-                        distance_matrix[another_index][index] = distance
-
-            for row, one_list in enumerate(distance_matrix):
-                cal_list = numpy.array([[i for i in range(len(one_list))], one_list])
-                sort_list = cal_list.T[numpy.lexsort(cal_list)].T
-                count = 0
-                for index in sort_list[0]:
-                    individual_1 = self.population.get_individual(row)
-                    individual_2 = self.population.get_individual(int(index))
-
-                    new_individual = self._find_center(individual_1, individual_2,
-                                                       [self.population, created_population])
-                    if new_individual is not None:
-                        created_population.add_by_individual(new_individual)
-
-                    count += 1
-                    if count == 3:
-                        break
-
-            created_population.fitness(terrain)
-
-            self.population.merge_population(created_population)
-            self.population.save_by_sort(self.size, save_type=evolute_type)
-            self.recorder.add_population(self.population)
-            print("generation = " + str(generation))
-
-    def _find_center(self, individual_1, individual_2, remains):
-        """
-        look for an individual between two individuals.
-
-        :param individual_1: one individual.
-        :param individual_2: another individual.
-
-        :param remains: remain population(s).
-
-        :return: created individual (if it is remain).
-        """
-        new_row = int(round((individual_1[0] + individual_2[0]) / 2))
-        new_col = int(round((individual_1[1] + individual_2[1]) / 2))
-        is_created = True
-        for remain in remains:
-            if remain.population is not None:
-                if not remain.meet_interval([new_row, new_col], self.min_interval):
-                    is_created = False
-
-        return [new_row, new_col, 0] if is_created else None

@@ -88,7 +88,14 @@ def create_near_new(genome, config, key):
 
 
 def create_check(genome, genome_config):
+    """
+    check whether the genome can be constructed into a network.
 
+    :param genome: the information of genome.
+    :param genome_config: the config of genome.
+
+    :return: whether or not.
+    """
     try:
         if genome_config.feed_forward:
             neat.nn.FeedForwardNetwork.create(genome, TempConfig(genome_config))
@@ -101,6 +108,14 @@ def create_check(genome, genome_config):
 
 
 def distance_between_two_matrices(matrix_1, matrix_2):
+    """
+    obtain the distance between two matrices.
+
+    :param matrix_1: one matrix.
+    :param matrix_2: another matrix.
+
+    :return: the distance.
+    """
     distance = 0
     for row_1, row_2 in zip(matrix_1, matrix_2):
         for value_1, value_2 in zip(row_1, row_2):

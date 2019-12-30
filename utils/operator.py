@@ -6,7 +6,7 @@ from enum import Enum
 
 import neat
 import numpy
-from evolution_process.evolutor import LEARN_TYPE, TYPE_CORRECT
+from evolution.evolutor import LEARN_TYPE, TYPE_CORRECT
 from utils import visualize
 
 

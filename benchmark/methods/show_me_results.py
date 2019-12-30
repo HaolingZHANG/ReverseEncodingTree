@@ -86,6 +86,6 @@ def clime_by_generation(population_recorders,
     ax.view_init(30, -150)
     ax.set_zlim(-5000, 9000)
     if save_path is not None:
-        plt.savefig(save_path + title + "." + str(generation + 1) + ".png", format='png', bbox_inches='tight',
+        plt.savefig(save_path + title + "." + str(generation + 1) + ".svg", format='svg', bbox_inches='tight',
                     transparent=True, dpi=600)
     plt.show()

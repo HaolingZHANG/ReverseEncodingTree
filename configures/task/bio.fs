@@ -37,7 +37,6 @@ conn_delete_prob        = 0.5
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
-
 feed_forward            = True
 initial_connection      = fs_neat
 

@@ -32,9 +32,9 @@ class FitDevice(object):
 
     def __init__(self, method, network_type=NET_TYPE.FeedForward):
         """
-        Initialize the evolution_process calculation and type of network.
+        Initialize the evolution calculation and type of network.
 
-        :param method: evolution process, see /evolution_process/methods/
+        :param method: evolution process, see /evolution/methods/
         :param network_type: type of network created by genome.
         """
         logging.info("Initialize the evolution process calculation.")
@@ -121,7 +121,7 @@ class FitDevice(object):
 
     def _genome_in_supervised(self, genome, config):
         """
-        Calculate evolution_process of genome in Supervised Learning.
+        Calculate evolution of genome in Supervised Learning.
 
         :param genome: one genome in current generation.
         :param config: generated configure of network by genome.
@@ -138,7 +138,7 @@ class FitDevice(object):
     
     def _genome_in_reinforced(self, genome, config):
         """
-        Calculate evolution_process of genome in Reinforcement Learning.
+        Calculate evolution of genome in Reinforcement Learning.
 
         :param genome: one genomes in current generation.
         :param config: generated configures of network by genome.
@@ -182,8 +182,8 @@ class FitDevice(object):
                 accumulative_recorder += reward
 
                 if done:
-                    if has_attack:
-                        print("with: ", round(attack_count / float(step + 1), 2), "% attack.")
+                    # if has_attack:
+                    #     print("with: ", round(attack_count / float(step + 1), 2), "% attack.")
                     break
                 else:
                     observation = current_observation

@@ -8,11 +8,11 @@ import copy
 
 import math
 import pandas
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, SpectralClustering, Birch
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
-from evolution_process.bean.genome import create_near_new, create_center_new, distance_between_two_matrices
+from evolution.bean.genome import create_near_new, create_center_new, distance_between_two_matrices
 
 
 class Reproduction(DefaultReproduction):
@@ -37,7 +37,8 @@ class Reproduction(DefaultReproduction):
                                   [ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
                                    ConfigParameter('correlation_rate', float, 0.5),
-                                   ConfigParameter('search_count', int, 1)])
+                                   ConfigParameter('search_count', int, 1),
+                                   ConfigParameter('cluster_method', str, "kmeans++")])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -142,18 +143,10 @@ class Reproduction(DefaultReproduction):
                     feature_matrices[-1] += copy.deepcopy(feature_slice)
 
             # cluster the current network based on the size of population.
-            k_means = KMeans(n_clusters=pop_size, max_iter=len(current_genomes))
-            k_means.fit(feature_matrices)
-            cluster_centers = []
-            for cluster_center in k_means.cluster_centers_:
-                feature_matrix = []
-                for index in range(self.genome_config.max_node_num):
-                    feature_matrix.append(list(cluster_center[index * self.genome_config.max_node_num:
-                                                              (index + 1) * self.genome_config.max_node_num + 1]))
-                cluster_centers.append(feature_matrix)
+            labels, centers = self.cluster(feature_matrices, pop_size, len(current_genomes))
 
             genome_clusters = [[] for _ in range(pop_size)]
-            for index, cluster_index in enumerate(k_means.labels_):
+            for index, cluster_index in enumerate(labels):
                 genome_clusters[cluster_index].append(current_genomes[index])
 
             for genome_cluster in genome_clusters:
@@ -161,7 +154,7 @@ class Reproduction(DefaultReproduction):
 
             self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
 
-            return genome_clusters, cluster_centers
+            return genome_clusters, centers
         else:
             genome_clusters = []
             for genome in current_genomes:
@@ -221,9 +214,9 @@ class Reproduction(DefaultReproduction):
                         # and then evolution is carried out according to the original method.
                         if correlations[index_1] >= self.reproduction_config.correlation_rate \
                                 and correlations[index_2] >= self.reproduction_config.correlation_rate:
-                            topo_genome = self.obtain_topological_genome(cluster_centers[index_1],
-                                                                         cluster_centers[index_2],
-                                                                         saved_genomes + new_genomes, -1)
+                            topo_genome = self.obtain_global_genome(cluster_centers[index_1],
+                                                                    cluster_centers[index_2],
+                                                                    saved_genomes + new_genomes, -1)
                             if cluster_1[0].fitness > cluster_2[0].fitness:
                                 near_genome = self.obtain_near_genome(cluster_1[0],
                                                                       saved_genomes + new_genomes + cluster_1, -1)
@@ -296,8 +289,8 @@ class Reproduction(DefaultReproduction):
                         # add near genome (limit search count)
                         near_genome = self.obtain_near_genome(genome_1, new_genomes, -1)
                         # add center genome
-                        topo_genome = self.obtain_topological_genome(genome_1.feature_matrix, genome_2.feature_matrix,
-                                                                     new_genomes, -1)
+                        topo_genome = self.obtain_global_genome(genome_1.feature_matrix, genome_2.feature_matrix,
+                                                                new_genomes, -1)
                         if near_genome is not None:
                             new_genomes.append(near_genome)
                         if topo_genome is not None:
@@ -305,7 +298,47 @@ class Reproduction(DefaultReproduction):
 
         return new_genomes
 
-    def obtain_topological_genome(self, matrix_1, matrix_2, saved_genomes, index):
+    def cluster(self, feature_matrices, pop_size, iteration):
+        """
+        cluster the current network based on the size of population using Cluster Method.
+
+        :param feature_matrices: set of feature matrix (one dimensio).
+        :param pop_size: population size.
+        :param iteration: maximum iteration.
+
+        :return: labels and cluster centers.
+        """
+        centers = []
+        if self.reproduction_config.cluster_method == "kmeans++":
+            method = KMeans(n_clusters=pop_size, max_iter=iteration)
+        elif self.reproduction_config.cluster_method == "spectral":
+            method = SpectralClustering(n_clusters=pop_size)
+        elif self.reproduction_config.cluster_method == "birch":
+            method = Birch(n_clusters=pop_size)
+        else:
+            method = KMeans(n_clusters=pop_size, max_iter=iteration, init="random")
+
+        method.fit(feature_matrices)
+        for cluster_center in method.cluster_centers_:
+            feature_matrix = []
+            for index in range(self.genome_config.max_node_num):
+                feature_matrix.append(list(cluster_center[index * self.genome_config.max_node_num:
+                                                          (index + 1) * self.genome_config.max_node_num + 1]))
+            centers.append(feature_matrix)
+
+        return method.labels_, centers
+
+    def obtain_global_genome(self, matrix_1, matrix_2, saved_genomes, index):
+        """
+        obtain global genome based on the feather matrix in two genomes.
+
+        :param matrix_1: one feature matrix.
+        :param matrix_2: another feature matrix.
+        :param saved_genomes: genomes are saved in this population before.
+        :param index: genome index.
+
+        :return: novel global (binary search) genome or not (cannot create due to min_distance).
+        """
         center_genome = create_center_new(matrix_1, matrix_2, self.genome_config, index)
         is_input = True
         for check_genome in saved_genomes:
@@ -318,6 +351,15 @@ class Reproduction(DefaultReproduction):
         return None
 
     def obtain_near_genome(self, parent_genome, saved_genomes, index):
+        """
+        obtain near genome by NEAT.
+
+        :param parent_genome: parent genome.
+        :param saved_genomes: genomes are saved in this population before.
+        :param index: genome index.
+
+        :return: novel near genome or not (cannot create due to min_distance).
+        """
         count = 0
         while count < self.reproduction_config.search_count:
             near_genome = create_near_new(parent_genome, self.genome_config, index)
