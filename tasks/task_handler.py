@@ -97,7 +97,7 @@ def run_cart_pole_v0():
 
 
 def run_cart_pole_v0_with_attack():
-    attacker = CartPole_v0_Attacker(attack_type=ATTACK_TYPE.GaussianAvg, gaussian_peak=1000)
+    attacker = CartPole_v0_Attacker(attack_type=ATTACK_TYPE.Gaussian, gaussian_peak=1000)
     noise_level = 1
 
     task = Game(method_type=METHOD_TYPE.FS, game_type=GAME_TYPE.CartPole_v0, episode_steps=500, episode_generation=20,

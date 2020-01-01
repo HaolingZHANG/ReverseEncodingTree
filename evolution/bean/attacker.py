@@ -7,8 +7,8 @@ import numpy
 
 class ATTACK_TYPE(Enum):
     Normal = 0
-    GaussianAvg = 1
-    Reverse = 2
+    Reverse = 1
+    Gaussian = 2
     Zerout = 3
 
 
@@ -61,7 +61,7 @@ class CartPole_v0_Attacker(object):
                         attack_observation[index] += value
                     else:
                         attack_observation[index] -= value
-            elif self.attack_type == ATTACK_TYPE.GaussianAvg:
+            elif self.attack_type == ATTACK_TYPE.Gaussian:
                 attack_observation = numpy.random.normal(numpy.mean(attack_observation[: size]),
                                                          self.gaussian_max, size)
             elif self.attack_type == ATTACK_TYPE.Reverse:
