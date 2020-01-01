@@ -61,9 +61,6 @@ class CartPole_v0_Attacker(object):
                         attack_observation[index] += value
                     else:
                         attack_observation[index] -= value
-            elif self.attack_type == ATTACK_TYPE.Gaussian:
-                attack_observation = numpy.random.normal(numpy.mean(attack_observation[: size]),
-                                                         self.gaussian_max, size)
             elif self.attack_type == ATTACK_TYPE.Reverse:
                 if self.reverse_flag:
                     # reverse the ray tracer, but the keep the 2-dim velocity
@@ -71,6 +68,9 @@ class CartPole_v0_Attacker(object):
                     self.reverse_flag = False
                 else:
                     self.reverse_flag = True
+            elif self.attack_type == ATTACK_TYPE.Gaussian:
+                attack_observation = numpy.random.normal(numpy.mean(attack_observation[: size]),
+                                                         self.gaussian_max, size)
             elif self.attack_type == ATTACK_TYPE.Zerout:
                 attack_observation[0: size - 1] = 0
 
