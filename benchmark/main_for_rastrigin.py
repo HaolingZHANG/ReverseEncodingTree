@@ -39,7 +39,7 @@ def obtain_bi():
     function.evolute(terrain=landscape, generations=8, evolute_type=inherent.MAX)
 
     for i in [0, 1, 3, 5, 7]:
-        clime_by_generation(function.recorder.get_result(), "RST", i, False,
+        clime_by_generation(function.recorder.get_result(), "RET", i, False,
                             mount_path="./dataset/rastrigin.csv", save_path="./results/")
 
 
