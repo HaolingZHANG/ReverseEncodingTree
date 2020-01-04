@@ -1,2 +1,2 @@
-# Bi-NEAT
-Neural Network evoluting by Binary Search
+# Reverse Encoding Tree
+Evolving Neural Network through the Reverse Encoding Tree
