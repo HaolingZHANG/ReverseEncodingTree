@@ -1,5 +1,5 @@
 # Evolving Neural Network through a Reverse Encoding Tree
-Code for Python 3.7 implementation of **Reverse Encoding Tree** from the paper.
+Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the paper.
 ## Getting Started
 The library is divided into two parts.
 In the **benckmark** part, you will easy easily understand the principle of our strategy and its difference from other strategies. 
