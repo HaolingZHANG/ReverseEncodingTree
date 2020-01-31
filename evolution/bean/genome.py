@@ -230,6 +230,7 @@ class GlobalGenome(neat.DefaultGenome):
         for input_id, output_id in self.compute_connections(config):
             connection = self.create_connection(config, input_id, output_id)
             self.connections[connection.key] = connection
+
         # add feature matrix
         self.set_feature_matrix(config)
 

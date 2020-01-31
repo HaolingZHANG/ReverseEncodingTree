@@ -67,8 +67,8 @@ class Reproduction(DefaultReproduction):
             while True:
                 genome.configure_new(genome_config)
                 min_distance = float("inf")
-                for check_index in range(1, created_index):
-                    current_distance = genome.distance(new_genomes[check_index], genome_config)
+                for check_index, new_genome in new_genomes.items():
+                    current_distance = genome.distance(new_genome, genome_config)
                     distance_matrix[created_index - 1][check_index - 1] = current_distance
                     distance_matrix[check_index - 1][created_index - 1] = current_distance
                     if min_distance > current_distance:
@@ -103,7 +103,7 @@ class Reproduction(DefaultReproduction):
         genome_clusters, cluster_centers = self.obtain_clusters(species, pop_size)
 
         # obtain topological genomes and near genomes.
-        new_genomes = self.obtain_phenotypical_network(pop_size, genome_clusters, cluster_centers)
+        new_genomes = self.obtain_phenotypic_network(pop_size, genome_clusters, cluster_centers)
 
         # aggregate final population
         new_population = {}
@@ -165,13 +165,13 @@ class Reproduction(DefaultReproduction):
 
             return genome_clusters, None
 
-    def obtain_phenotypical_network(self, pop_size, genome_clusters, cluster_centers):
+    def obtain_phenotypic_network(self, pop_size, genome_clusters, cluster_centers):
         """
-        obtain new phenotypical network from population size and current genotypical network.
+        obtain new phenotypic network from population size and current phenotypic network.
 
         :param pop_size: population size.
-        :param genome_clusters: current genotypical network.
-        :param cluster_centers:
+        :param genome_clusters: current phenotypic network.
+        :param cluster_centers: centers of cluster.
 
         :return: center genomes and near genomes.
         """

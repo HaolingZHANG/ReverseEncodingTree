@@ -6,7 +6,7 @@ import neat
 from evolution.bean import genome, species_set
 from evolution.bean.phenotyper import create_drosophila_melanogaster, screen, select
 from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
-from evolution.methods import bi, gs
+from evolution.methods import bi, gs, cmaes
 from utils.operator import Operator
 
 
@@ -15,6 +15,7 @@ class METHOD_TYPE(Enum):
     FS = 1
     BI = 2
     GS = 3
+    CMAES = 4
 
 
 class LOGIC_TYPE(Enum):
@@ -96,6 +97,11 @@ class Logic(object):
                                  species_set.StrongSpeciesSet, neat.DefaultStagnation,
                                  "../configures/task/logic.gs")
             self.filename += "gs"
+        elif method_type == METHOD_TYPE.CMAES:
+            config = neat.Config(genome.GlobalGenome, cmaes.Reproduction,
+                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
+                                 "../configures/task/logic.cmaes")
+            self.filename += "cmaes"
 
         # initialize the NeuroEvolution
         self.operator = Operator(config=config, fitter=fitter,
