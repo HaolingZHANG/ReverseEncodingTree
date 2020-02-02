@@ -72,13 +72,13 @@ def create_phenotypes(gene_count, death_types=None, influences=None):
             if death_types is not None and (gene_1 in death_types or gene_2 in death_types):
                 continue
 
-            # calculate the genotypical situation (input)
+            # calculate the genotypic situation (input)
             data_input = [0 for _ in range(gene_count * 2)]
             for gene_index in range(gene_count):
                 data_input[gene_index] = gene_1[gene_index]
                 data_input[gene_index + gene_count] = gene_2[gene_index]
 
-            # calculate the phenotypical distribution (output)
+            # calculate the phenotypic distribution (output)
             distribution = []
             for target_type in range(2 ** gene_count):
                 detailed_type = list(map(int, list(str(bin(target_type))[2:].zfill(gene_count))))
