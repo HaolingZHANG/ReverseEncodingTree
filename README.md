@@ -30,11 +30,7 @@ You need to create a configure before running, the document including original s
 
 After creating the configure:
 ```python
-config = neat.Config(genome.GlobalGenome, 
-					 bi.Reproduction,
-                     species_set.StrongSpeciesSet, 
-                     neat.DefaultStagnation, 
-                     "your configure path")
+config = neat.Config(genome.GlobalGenome, bi.Reproduction, species_set.StrongSpeciesSet, neat.DefaultStagnation, "your configure path")
 neat.Population(config)
 ```
 

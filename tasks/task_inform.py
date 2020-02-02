@@ -23,11 +23,6 @@ class LOGIC_TYPE(Enum):
     XOR = 4
 
 
-class BIO_TYPE(Enum):
-    DROSOPHILA_MELANOGASTER = 1
-    FLOWER_COLOR = 2
-
-
 class GAME_TYPE(Enum):
     CartPole_v0 = 0
     LunarLander_v2 = 1
