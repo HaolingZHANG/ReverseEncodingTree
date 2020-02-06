@@ -1,7 +1,7 @@
 # Evolving Neural Network through a Reverse Encoding Tree
 
 
-<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/demo_RET2020.png" width="400">
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/demo_RET2020.png" width="300">
 
 Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the [paper](https://arxiv.org/abs/2002.00539).
 ## Getting Started
