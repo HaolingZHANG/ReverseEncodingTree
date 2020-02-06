@@ -36,7 +36,7 @@ neat.Population(config)
 
 If you think this repo helps or being used in your research, please consider refer this paper. Thank you.
 
-- [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539)
+- [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539
 
 Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
 # Contributors
