@@ -42,6 +42,16 @@ If you think this repo helps or being used in your research, please consider ref
 
 - [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539
 
+````
+@article{zhang2020evolving,
+  title={Evolving Neural Networks through a Reverse Encoding Tree},
+  author={Zhang, Haoling and Yang, Chao-Han Huck and Zenil, Hector and Kiani, Narsis A and Shen, Yue and Tegner, Jesper N},
+  journal={arXiv preprint arXiv:2002.00539},
+  year={2020}
+}
+````
+
+
 Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
 # Contributors
 [Haoling Zhang](https://github.com/HaolingZHANG), [Chao-Han Huck Yang](https://github.com/huckiyang)
