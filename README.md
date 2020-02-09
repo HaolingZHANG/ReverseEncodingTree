@@ -1,7 +1,7 @@
 # Evolving Neural Network through a Reverse Encoding Tree
 
 
-<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/demo_RET2020.png" width="300">
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/demo_RET2020.png" width="300">
 
 Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the [paper](https://arxiv.org/abs/2002.00539).
 ## Getting Started
@@ -37,6 +37,15 @@ After creating the configure:
 config = neat.Config(genome.GlobalGenome, bi.Reproduction, species_set.StrongSpeciesSet, neat.DefaultStagnation, "your configure path")
 neat.Population(config)
 ```
+### Continous Learning Environments
+
+- Cartport-v0
+
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/cartpole.gif" width="300">
+
+- LunarLander-v2
+
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/lunar_lander_success_example.gif" width="300">
 
 If you think this repo helps or being used in your research, please consider refer this paper. Thank you.
 
