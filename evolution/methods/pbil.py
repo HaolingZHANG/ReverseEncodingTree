@@ -1,6 +1,3 @@
-import math
-import numpy
-import numpy.linalg as la
 from neat import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
@@ -13,6 +10,7 @@ class Reproduction(DefaultReproduction):
         super().__init__(config, reporters, stagnation)
         self.genome_config = None
         self.genome_type = None
+        self.probability_matrix = None
 
     @classmethod
     def parse_config(cls, param_dict):
@@ -23,7 +21,7 @@ class Reproduction(DefaultReproduction):
 
         :return: config.
         """
-        return DefaultClassConfig(param_dict, [ConfigParameter('elite_rate', float, 0.2)])
+        return DefaultClassConfig(param_dict, [ConfigParameter('learn_rate', float, 0.1)])
 
     def create_new(self, genome_type, genome_config, num_genomes):
         """
@@ -82,45 +80,29 @@ class Reproduction(DefaultReproduction):
         # sort members in order of descending fitness.
         current_genomes.sort(reverse=True, key=lambda g: g.fitness)
 
-        # create feature matrices and calculate speed list and avg adjusted fitness
-        elite_individuals = []
-        current_individuals = []
-        avg_adjusted_fitness = 0
-        length = len(current_genomes[0].feature_matrix) * len(current_genomes[0].feature_matrix[0])
-        for index, genome in enumerate(current_genomes):
-            if index < int(self.reproduction_config.elite_rate * pop_size):
-                avg_adjusted_fitness += genome.fitness / pop_size
-                elite_individuals.append(numpy.array(genome.feature_matrix).reshape((1, length))[0])
-            current_individuals.append(numpy.array(genome.feature_matrix).reshape((1, length))[0])
+        self._update_probability_matrix(current_genomes)
 
-        elite_individuals = numpy.array(elite_individuals).T
-        current_individuals = numpy.array(current_individuals).T
-
-        self.reporters.info("Average adjusted fitness: {:.3f}".format(avg_adjusted_fitness))
-
-        # adopt feature matrices based on covariance matrix
-        centered = elite_individuals - current_individuals.mean(1, keepdims=True)
-        c = (centered @ centered.T) / (int(pop_size * self.reproduction_config.elite_rate) - 1)
-        w, e = la.eigh(c)
-
-        new_individuals = None
-        while True:
-            try:
-                # TODO nan problem
-                new_individuals = elite_individuals.mean(1, keepdims=True) + \
-                                  (e @ numpy.diag(numpy.sqrt(w)) @ numpy.random.normal(size=(length, pop_size)))
-            except ValueError:
-                continue
-            break
-
-        new_individuals = new_individuals.T
         new_population = {}
-        for index, individual in enumerate(new_individuals):
-            feature_matrix = []
-            for row in individual.reshape((int(math.sqrt(len(individual))), int(math.sqrt(len(individual))) + 1)):
-                feature_matrix.append(list(row))
-            genome = GlobalGenome(index)
-            genome.feature_matrix_new(feature_matrix, self.genome_config)
-            new_population[index] = genome
+        # for index, individual in enumerate(new_individuals):
+        #     feature_matrix = []
+        #     for row in individual.reshape((int(math.sqrt(len(individual))), int(math.sqrt(len(individual))) + 1)):
+        #         feature_matrix.append(list(row))
+        #     exit(121)
+        #     genome = GlobalGenome(index)
+        #     genome.feature_matrix_new(feature_matrix, self.genome_config)
+        #     new_population[index] = genome
 
         return new_population
+
+    def _update_probability_matrix(self, current_genomes):
+        best_fitness = current_genomes[0].fitness
+        mean_fitness = 0
+        for genome in current_genomes:
+            mean_fitness += genome.fitness
+        mean_fitness /= len(current_genomes)
+
+
+        pass
+
+    def _create_genomes_by_matrix(self):
+        pass

@@ -1,3 +1,5 @@
+# Segregation ratio of characters in hybrid progeny (law of independent assortment).
+
 import itertools
 import math
 
@@ -14,7 +16,7 @@ normal_hybridize = [[(1.00, 0.00), (0.50, 0.50), (0.00, 1.00)],
                     [(0.00, 1.00), (0.00, 1.00), (0.00, 1.00)]]
 
 
-def create_drosophila_melanogaster():
+def cumulative():
     """
     create genes from Drosophila Melanogaster (Normal).
 
@@ -29,13 +31,17 @@ def create_drosophila_melanogaster():
     return create_phenotypes(gene_count=2)
 
 
+def recessive_epistasis():
+    pass
+
+
 def create_flower():
     """
     Additive Gene Effects
 
     ref: Bateson, W., & Saunders, E. R. (1910). Reports to the Evolution Committee of the Royal Society: ReportsI-V, 1902-09. Royal Society.
 
-    :return:
+    :return: data_inputs, data_outputs.
     """
     gene_count = 2
     data_inputs, data_outputs = [], []
@@ -55,9 +61,9 @@ def create_flower():
 
 def create_phenotypes(gene_count, death_types=None, influences=None):
     """
-    create the phenotypical distribution.
+    create the phenotypic distribution.
 
-    :param gene_count:
+    :param gene_count: number of genes that control a phenotype.
     :param death_types:
     :param influences:
 
@@ -72,7 +78,7 @@ def create_phenotypes(gene_count, death_types=None, influences=None):
             if death_types is not None and (gene_1 in death_types or gene_2 in death_types):
                 continue
 
-            # calculate the genotypic situation (input)
+            # calculate the genotypic types (input)
             data_input = [0 for _ in range(gene_count * 2)]
             for gene_index in range(gene_count):
                 data_input[gene_index] = gene_1[gene_index]

@@ -5,6 +5,7 @@ from enum import Enum
 import numpy
 
 
+# noinspection PyPep8Naming
 class ATTACK_TYPE(Enum):
     Normal = 0
     Reverse = 1
@@ -12,6 +13,7 @@ class ATTACK_TYPE(Enum):
     Zerout = 3
 
 
+# noinspection PyPep8Naming
 class CartPole_v0_Attacker(object):
 
     def __init__(self, current_state=False, beta=0.25, epsilon=0.3, attack_type=ATTACK_TYPE.Normal,

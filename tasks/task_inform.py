@@ -4,7 +4,7 @@ import gym
 import neat
 
 from evolution.bean import genome, species_set
-from evolution.bean.phenotyper import create_drosophila_melanogaster, screen, select
+from bio_data.phenotyper import cumulative, screen, select
 from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
 from evolution.methods import bi, gs
 from utils.operator import Operator
@@ -297,7 +297,7 @@ class Biology(object):
         data_outputs = None
 
         if bio_type == BIO_TYPE.DROSOPHILA_MELANOGASTER:
-            data_inputs, data_outputs = create_drosophila_melanogaster()
+            data_inputs, data_outputs = cumulative()
             self.filename = "drosophila_melanogaster."
         # elif bio_type == BIO_TYPE.FLOWER_COLOR:
         #     data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
