@@ -1,6 +1,6 @@
 # Evolving Neural Network through a Reverse Encoding Tree
 
-News: Our Paper has been accepted to IEEE CEC 2020. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details.
+News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details.
 
 
 <img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/demo_RET2020.png" width="300">
