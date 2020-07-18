@@ -36,7 +36,7 @@ class Reproduction(DefaultReproduction):
         return DefaultClassConfig(param_dict,
                                   [ConfigParameter('init_distance', float, 5),
                                    ConfigParameter('min_distance', float, 0.2),
-                                   ConfigParameter('correlation_rate', float, 0.5),
+                                   ConfigParameter('correlation_rate', float, -0.5),
                                    ConfigParameter('search_count', int, 1),
                                    ConfigParameter('cluster_method', str, "kmeans++")])
 

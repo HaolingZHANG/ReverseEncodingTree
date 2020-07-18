@@ -10,6 +10,7 @@ from evolution.evolutor import LEARN_TYPE, TYPE_CORRECT
 from utils import visualize
 
 
+# noinspection PyPep8Naming
 class REPORTER_TYPE(Enum):
     Statistic = 1
     Stdout = 2
@@ -250,6 +251,7 @@ class Operator(object):
 
     def reset(self):
         while True:
+            # noinspection PyBroadException
             try:
                 # re-create the population by configuration, which is the top-level object for a NEAT tasks.
                 self._population = neat.Population(self._config)

@@ -78,6 +78,6 @@ species_elitism      = 2
 [Reproduction]
 init_distance    = 2.5
 min_distance     = 0.1
-correlation_rate = 0.5
+correlation_rate = -0.5
 search_count     = 30
 cluster_method   = kmeans++
