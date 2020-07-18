@@ -141,7 +141,7 @@ class Clever(object):
 
                 perturbed_values = expected_values - target_values
 
-                # TODO gradient of what (population or the winner genome)?
+                # TODO gradient for what (population or the winner genome)? using perturbed_values
                 perturbed_gradient = numpy.array([0 for _ in range(len(data))])
 
                 reshape_value = 1
