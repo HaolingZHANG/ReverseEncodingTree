@@ -1,6 +1,7 @@
 import copy
 import random
 from enum import Enum
+import tensorflow as tf
 
 import numpy
 
@@ -81,11 +82,12 @@ class CartPole_v0_Attacker(object):
 
 class Clever(object):
 
-    def __init__(self, trained_model, maximum_perturbation, estimate_iterations):
-
+    def __init__(self, trained_model, perturbation_norm, maximum_perturbation, estimate_iterations):
         self.trained_model = trained_model
         self.maximum_perturbation = maximum_perturbation
         self.estimate_iterations = estimate_iterations
+
+        self.q = perturbation_norm // (perturbation_norm - 1)
 
         self.scores = []
 
@@ -149,13 +151,16 @@ class Clever(object):
                 if reshape_value > 1:
                     perturbed_gradient = perturbed_gradient.reshape((sample_number, reshape_value))
 
-                norm_1 = numpy.linalg.norm(perturbed_gradient, axis=1, ord=1, keepdims=True)
-                norm_2 = numpy.linalg.norm(perturbed_gradient, axis=1, ord=2, keepdims=True)
-                norm_i = numpy.linalg.norm(perturbed_gradient, axis=1, ord=numpy.inf, keepdims=True)
+                # TODO using self.q?
+                # norm_1 = numpy.linalg.norm(perturbed_gradient, axis=1, ord=1, keepdims=True)
+                # norm_2 = numpy.linalg.norm(perturbed_gradient, axis=1, ord=2, keepdims=True)
+                # norm_i = numpy.linalg.norm(perturbed_gradient, axis=1, ord=numpy.inf, keepdims=True)
+                # perturbed_set[batch_index] = [numpy.max(norm_1), numpy.max(norm_2), numpy.max(norm_i)]
+                perturbed_norm = numpy.linalg.norm(perturbed_gradient, axis=1, ord=self.q, keepdims=True)
+                perturbed_set[batch_index] = perturbed_norm
 
-                perturbed_set[batch_index] = [numpy.max(norm_1), numpy.max(norm_2), numpy.max(norm_i)]
-
-            location_estimate = self.fit_reverse_weibull_distribution(perturbed_set)
+            # TODO what are scale and shape?
+            location_estimate = self.fit_reverse_weibull_distribution(perturbed_set, 5, 1)
 
             predicted_label = self.trained_model.activate(data)
             expected_value = predicted_label[satisfiable_labels.index(expected_label)]
@@ -167,16 +172,24 @@ class Clever(object):
         self.scores.append(clever_scores)
 
     def score_in_regression(self, expected_results, data_set, results_ranges, batch_size, sample_number):
-        # TODO
+        # TODO How to expand this score in regression tasks.
         pass
 
     def score_in_reinforcement(self):
-        # TODO
+        # TODO How to expand this score in reinforcement tasks.
         pass
 
-    def fit_reverse_weibull_distribution(self, perturbed_set):
-        self.estimate_iterations = 1
-        return 1
+    def fit_reverse_weibull_distribution(self, perturbed_set, scale, shape):
+        location = 0
+        x = numpy.array(list(perturbed_set.values()))
+        y = numpy.random.uniform(x.shape)
+        weibull_x = numpy.exp(-((location - y) / scale) ** shape)
+        loss = numpy.mean((x - weibull_x) ** 2)
+
+        optimizer = tf.keras.optimizers.SGD()
+        for i in range(self.estimate_iterations):
+            optimizer.minimize(loss, var_list=[scale, location, shape])
+        return location
 
     def get_scores(self):
-        pass
+        return self.scores
