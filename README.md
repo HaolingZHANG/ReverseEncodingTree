@@ -1,5 +1,11 @@
 # Evolving Neural Network through a Reverse Encoding Tree
-Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the paper.
+
+News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details.
+
+
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/demo_RET2020.png" width="300">
+
+Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the [paper](https://arxiv.org/abs/2002.00539).
 ## Getting Started
 The library is divided into two parts.
 In the **benckmark** part, you will easy easily understand the principle of our strategy and its difference from other strategies. 
@@ -33,6 +39,30 @@ After creating the configure:
 config = neat.Config(genome.GlobalGenome, bi.Reproduction, species_set.StrongSpeciesSet, neat.DefaultStagnation, "your configure path")
 neat.Population(config)
 ```
+### Continous Learning Environments
 
+- Cartport-v0
+
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/cartpole.gif" width="300">
+
+- LunarLander-v2
+
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/lunar_lander_success_example.gif" width="300">
+
+If you think this repo helps or being used in your research, please consider refer this paper. Thank you.
+
+- [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539, IEEE CEC 2020 Oral.
+
+````
+@article{zhang2020evolving,
+  title={Evolving Neural Networks through a Reverse Encoding Tree},
+  author={Zhang, Haoling and Yang, Chao-Han Huck and Zenil, Hector and Kiani, Narsis A and Shen, Yue and Tegner, Jesper N},
+  journal={arXiv preprint arXiv:2002.00539},
+  year={2020}
+}
+````
+
+
+Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
 # Contributors
 [Haoling Zhang](https://github.com/HaolingZHANG), [Chao-Han Huck Yang](https://github.com/huckiyang)
