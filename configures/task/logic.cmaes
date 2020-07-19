@@ -3,7 +3,7 @@
 [NEAT]
 fitness_criterion     = max
 fitness_threshold     = 3.999
-pop_size              = 12
+pop_size              = 132
 reset_on_extinction   = False
 
 [GlobalGenome]
@@ -38,6 +38,7 @@ conn_delete_prob        = 0.5
 enabled_default         = True
 enabled_mutate_rate     = 0.01
 feed_forward            = True
+initial_connection      = unconnected
 
 # node add/remove rates
 node_add_prob           = 0.2
@@ -76,8 +77,4 @@ max_stagnation       = 20
 species_elitism      = 2
 
 [Reproduction]
-init_distance    = 2.5
-min_distance     = 0.1
-correlation_rate = -0.5
-search_count     = 30
-cluster_method   = kmeans++
+elite_rate           = 0.2
