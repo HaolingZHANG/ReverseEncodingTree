@@ -2,12 +2,13 @@ import datetime
 import logging
 import pickle
 import random
+import numpy
 from enum import Enum
 
-import neat
-import numpy
-from evolution.evolutor import LEARN_TYPE, TYPE_CORRECT
-from utils import visualize
+from neat import population, checkpoint, statistics, reporting
+
+from ReverseEncodingTree.evolution.evolutor import LEARN_TYPE, TYPE_CORRECT
+from ReverseEncodingTree.utils import visualize
 
 
 # noinspection PyPep8Naming
@@ -20,7 +21,7 @@ class REPORTER_TYPE(Enum):
 class Operator(object):
 
     def __init__(self, config, fitter, node_names,
-                 max_generation=None, checkpoint=-1, stdout=False, output_path=None):
+                 max_generation=None, checkpoint_value=-1, stdout=False, output_path=None):
         """
         Initialize the operator of NeuroEvolution.
 
@@ -28,7 +29,7 @@ class Operator(object):
         :param fitter: fitter of NEAT.
         :param node_names: node information for display the obtained network.
         :param max_generation: generations (iteration times).
-        :param checkpoint: the point to save the current state.
+        :param checkpoint_value: the point to save the current state.
         :param output_path: parent path for save file of displaying the genome and checkpoint.
         :param stdout: whether output the log.
         """
@@ -41,22 +42,22 @@ class Operator(object):
         self._output_path = output_path
 
         # create the population by configuration, which is the top-level object for a NEAT tasks.
-        self._population = neat.Population(self._config)
+        self._population = population.Population(self._config)
 
-        self._checkpoint = checkpoint
-        if self._checkpoint >= 0:
+        self._checkpoint_value = checkpoint_value
+        if self._checkpoint_value >= 0:
             # create the check point reporter.
-            self._checkpoint_reporter = neat.Checkpointer(generation_interval=checkpoint,
-                                                          filename_prefix=output_path + "neat-checkpoint-")
+            self._checkpoint_reporter = checkpoint.Checkpointer(generation_interval=checkpoint_value,
+                                                                filename_prefix=output_path + "neat-checkpoint-")
             self._population.add_reporter(self._checkpoint_reporter)
 
         # create the stdout reporter.
         self._stdout = stdout
-        self._stdout_reporter = neat.StdOutReporter(stdout)
+        self._stdout_reporter = reporting.StdOutReporter(stdout)
         self._population.add_reporter(self._stdout_reporter)
 
         # create the statistics reporter.
-        self._statistics_reporter = neat.StatisticsReporter()
+        self._statistics_reporter = statistics.StatisticsReporter()
         self._population.add_reporter(self._statistics_reporter)
 
         # best genome after training.
@@ -254,23 +255,23 @@ class Operator(object):
             # noinspection PyBroadException
             try:
                 # re-create the population by configuration, which is the top-level object for a NEAT tasks.
-                self._population = neat.Population(self._config)
+                self._population = population.Population(self._config)
                 break
             except Exception:
                 print("re-create again!")
 
-        if self._checkpoint >= 0:
+        if self._checkpoint_value >= 0:
             # create the check point reporter.
-            self._checkpoint_reporter = neat.Checkpointer(generation_interval=self._checkpoint,
-                                                          filename_prefix=self._output_path + "neat-checkpoint-")
+            self._checkpoint_reporter = checkpoint.Checkpointer(generation_interval=self._checkpoint_value,
+                                                                filename_prefix=self._output_path + "neat-checkpoint-")
             self._population.add_reporter(self._checkpoint_reporter)
 
         # create the stdout reporter.
-        self._stdout_reporter = neat.StdOutReporter(self._stdout)
+        self._stdout_reporter = reporting.StdOutReporter(self._stdout)
         self._population.add_reporter(self._stdout_reporter)
 
         # create the statistics reporter.
-        self._statistics_reporter = neat.StatisticsReporter()
+        self._statistics_reporter = statistics.StatisticsReporter()
         self._population.add_reporter(self._statistics_reporter)
 
         # best genome after training.

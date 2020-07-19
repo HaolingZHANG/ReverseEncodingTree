@@ -1,7 +1,6 @@
 import copy
 import random
 from enum import Enum
-import tensorflow as tf
 
 import numpy
 

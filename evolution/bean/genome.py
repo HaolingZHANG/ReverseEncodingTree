@@ -2,12 +2,13 @@ import copy
 import random
 
 import math
-import neat
 from neat.activations import ActivationFunctionSet
 from neat.aggregations import AggregationFunctionSet
 from neat.config import ConfigParameter
 from neat.genes import DefaultNodeGene, DefaultConnectionGene
+from neat.genome import DefaultGenome
 from neat.genome import DefaultGenomeConfig
+from neat.nn import feed_forward, recurrent
 from six import iteritems, itervalues
 
 
@@ -98,9 +99,9 @@ def create_check(genome, genome_config):
     """
     try:
         if genome_config.feed_forward:
-            neat.nn.FeedForwardNetwork.create(genome, TempConfig(genome_config))
+            feed_forward.FeedForwardNetwork.create(genome, TempConfig(genome_config))
         else:
-            neat.nn.RecurrentNetwork.create(genome, TempConfig(genome_config))
+            recurrent.RecurrentNetwork.create(genome, TempConfig(genome_config))
     except KeyError:
         return False
 
@@ -199,7 +200,7 @@ class GlobalGenomeConfig(DefaultGenomeConfig):
         self.node_indexer = None
 
 
-class GlobalGenome(neat.DefaultGenome):
+class GlobalGenome(DefaultGenome):
 
     @classmethod
     def parse_config(cls, param_dict):

@@ -2,8 +2,7 @@
 
 News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details.
 
-
-<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/demo_RET2020.png" width="300">
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/figures/demo_RET2020.png" width="300">
 
 Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the [paper](https://arxiv.org/abs/2002.00539).
 ## Getting Started
@@ -43,11 +42,11 @@ neat.Population(config)
 
 - Cartport-v0
 
-<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/cartpole.gif" width="300">
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/figures/cartpole.gif" width="300">
 
 - LunarLander-v2
 
-<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/Figure/lunar_lander_success_example.gif" width="300">
+<img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/figures/lunar_lander_success_example.gif" width="300">
 
 If you think this repo helps or being used in your research, please consider refer this paper. Thank you.
 
@@ -61,7 +60,6 @@ If you think this repo helps or being used in your research, please consider ref
   year={2020}
 }
 ````
-
 
 Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
 # Contributors

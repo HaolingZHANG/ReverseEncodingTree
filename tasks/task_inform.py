@@ -1,15 +1,17 @@
 from enum import Enum
 
 import gym
-import neat
+from neat import config, genome, reproduction, species, stagnation
 
-from evolution.bean import genome, species_set
-from bio_data.phenotyper import cumulative, screen, select
-from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
-from evolution.methods import bi, gs
-from utils.operator import Operator
+import ReverseEncodingTree.evolution.bean.genome as autogenome
+import ReverseEncodingTree.evolution.bean.species_set as autospecies
+
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
+from ReverseEncodingTree.evolution.methods import bi, gs
+from ReverseEncodingTree.utils.operator import Operator
 
 
+# noinspection PyPep8Naming
 class METHOD_TYPE(Enum):
     N = 0
     FS = 1
@@ -17,6 +19,7 @@ class METHOD_TYPE(Enum):
     GS = 3
 
 
+# noinspection PyPep8Naming
 class LOGIC_TYPE(Enum):
     NAND = 1
     NOR = 2
@@ -24,14 +27,10 @@ class LOGIC_TYPE(Enum):
     XOR = 4
 
 
+# noinspection PyPep8Naming
 class GAME_TYPE(Enum):
     CartPole_v0 = 0
     LunarLander_v2 = 1
-
-
-class BIO_TYPE(Enum):
-    DROSOPHILA_MELANOGASTER = 1
-    FLOWER_COLOR = 2
 
 
 class Logic(object):
@@ -75,32 +74,32 @@ class Logic(object):
         fitter.set_dataset({"i": data_inputs, "o": data_outputs})
 
         # load configuration.
-        config = None
+        task_config = None
         if method_type == METHOD_TYPE.N:
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.n")
+            task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                        species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/logic.n")
             self.filename += "fs"
         elif method_type == METHOD_TYPE.FS:
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.fs")
+            task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                        species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/logic.fs")
             self.filename += "fs"
         elif method_type == METHOD_TYPE.BI:
-            config = neat.Config(genome.GlobalGenome, bi.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.bi")
+            task_config = config.Config(autogenome.GlobalGenome, bi.Reproduction,
+                                        autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/logic.bi")
             self.filename += "bi"
         elif method_type == METHOD_TYPE.GS:
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/logic.gs")
+            task_config = config.Config(autogenome.GlobalGenome, gs.Reproduction,
+                                        autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/logic.gs")
             self.filename += "gs"
 
         # initialize the NeuroEvolution
-        self.operator = Operator(config=config, fitter=fitter,
+        self.operator = Operator(config=task_config, fitter=fitter,
                                  node_names={-1: 'A', -2: 'B', 0: 'A operate B'},
-                                 max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
+                                 max_generation=max_generation, checkpoint_value=checkpoint, stdout=stdout,
                                  output_path="../output/")
 
         # set whether display results
@@ -194,155 +193,31 @@ class Game(object):
                                episode_steps=episode_steps, episode_generation=episode_generation,
                                attacker=attacker, noise_level=noise_level)
         # load configuration.
-        config = None
+        task_config = None
         if method_type == METHOD_TYPE.N:
             self.filename += "n"
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/" + self.filename)
+            task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                        species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.FS:
             self.filename += "fs"
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/" + self.filename)
+            task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                        species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.BI:
             self.filename += "bi"
-            config = neat.Config(genome.GlobalGenome, bi.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/" + self.filename)
+            task_config = config.Config(autogenome.GlobalGenome, bi.Reproduction,
+                                        autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/" + self.filename)
         elif method_type == METHOD_TYPE.GS:
             self.filename += "gs"
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/" + self.filename)
+            task_config = config.Config(autogenome.GlobalGenome, gs.Reproduction,
+                                        autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
+                                        "../configures/task/" + self.filename)
 
         # initialize the NeuroEvolution
-        self.operator = Operator(config=config, fitter=fitter, node_names=self.node_name,
-                                 max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
-                                 output_path="../output/")
-
-        # set whether display results
-        self.display_results = display_results
-
-        self.max_generation = max_generation
-
-    def run(self, times):
-        """
-        multi-run task.
-
-        :param times: running times.
-
-        :return: results of generation and counts of each generation in the requested times.
-        """
-        generations = []
-        time = 0
-        while True:
-            try:
-                if times > 1:
-                    # print current times.
-                    print()
-                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                    print("procession time: " + str(time + 1))
-                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                    print()
-
-                self.operator.obtain_winner()
-                actual_generation, fit = self.operator.get_actual_generation()
-
-                time += 1
-                if time >= times:
-                    break
-
-                # reset the hyper-parameters
-                self.operator.reset()
-
-                if not fit:
-                    continue
-
-                generations.append(actual_generation)
-            except Exception or ValueError:
-                print("something error.")
-                self.operator.reset()
-
-        counts = [0 for _ in range(self.max_generation + 1)]
-        for generation in generations:
-            counts[generation] += 1
-
-        if self.display_results:
-            self.operator.display_genome(filename=self.filename)
-
-        return generations, counts
-
-
-class Biology(object):
-
-    def __init__(self, method_type, bio_type,
-                 max_generation, selection_ratio=1, selections=None,
-                 display_results=False, checkpoint=-1, stdout=False):
-        """
-        initialize the biological task.
-
-        :param method_type: the evolution strategy, FS-NEAT, Bi-NEAT, or GS-NEAT.
-        :param bio_type: the task type, DROSOPHILA_MELANOGASTER or FLOWER_COLOR.
-        :param max_generation: maximum generation of the evolution strategy,
-                               if the generation exceeds the maximum, it will be terminated.
-        :param selection_ratio: selection rate of dataset.
-        :param selections: selection position of dataset.
-        :param display_results: whether result visualization is required.
-        :param checkpoint: check the statistics point.
-        :param stdout: Whether outputting the genome information in the process is required.
-        """
-
-        data_inputs = None
-        data_outputs = None
-
-        if bio_type == BIO_TYPE.DROSOPHILA_MELANOGASTER:
-            data_inputs, data_outputs = cumulative()
-            self.filename = "drosophila_melanogaster."
-        # elif bio_type == BIO_TYPE.FLOWER_COLOR:
-        #     data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
-        #     data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
-        #     self.filename = "flower_color."
-
-        # selection if requested.
-        if selection_ratio < 1:
-            if selections is None:
-                data_inputs, data_outputs = screen(data_inputs, data_outputs, selection_ratio)
-            else:
-                data_inputs, data_outputs = select(data_inputs, data_outputs, selections)
-
-                # load evolution process.
-        fitter = FitDevice(FitProcess(init_fitness=0, eval_type=EVAL_TYPE.ManhattanDistance))
-        fitter.set_dataset({"i": data_inputs, "o": data_outputs})
-
-        # load configuration.
-        config = None
-        if method_type == METHOD_TYPE.N:
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.n")
-            self.filename += "n"
-        elif method_type == METHOD_TYPE.FS:
-            config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.fs")
-            self.filename += "fs"
-        elif method_type == METHOD_TYPE.BI:
-            config = neat.Config(genome.GlobalGenome, bi.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.bi")
-            self.filename += "bi"
-        elif method_type == METHOD_TYPE.GS:
-            config = neat.Config(genome.GlobalGenome, gs.Reproduction,
-                                 species_set.StrongSpeciesSet, neat.DefaultStagnation,
-                                 "../configures/task/bio.gs")
-            self.filename += "gs"
-
-        # initialize the NeuroEvolution
-        self.operator = Operator(config=config, fitter=fitter,
-                                 node_names={-1: '1 gene a', -2: '1 gene b', -3: '2 gene a', -4: '2 gene b',
-                                             0: 'ab', 1: 'ab', 2: 'Ab', 3: 'AB'},
-                                 max_generation=max_generation, checkpoint=checkpoint, stdout=stdout,
+        self.operator = Operator(config=task_config, fitter=fitter, node_names=self.node_name,
+                                 max_generation=max_generation, checkpoint_value=checkpoint, stdout=stdout,
                                  output_path="../output/")
 
         # set whether display results

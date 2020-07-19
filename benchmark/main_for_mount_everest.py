@@ -1,6 +1,6 @@
-from benchmark.methods import inherent
-from benchmark.methods.evolutor import GA, PBIL, BI, CMAES
-from benchmark.methods.show_me_results import clime_by_generation, get_mount_everest
+from ReverseEncodingTree.benchmark.methods import inherent
+from ReverseEncodingTree.benchmark.methods.evolutor import GA, PBIL, BI, CMAES
+from ReverseEncodingTree.benchmark.methods.show_me_results import clime_by_generation, get_mount_everest
 
 
 def obtain_ga(start_position, stride):

@@ -1,4 +1,4 @@
-from neat import DefaultSpeciesSet
+from neat.species import DefaultSpeciesSet
 from neat.math_util import mean, stdev
 from neat.species import Species, GenomeDistanceCache
 from six import iteritems, itervalues, iterkeys

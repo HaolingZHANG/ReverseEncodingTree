@@ -4,25 +4,29 @@ import math
 import numpy
 import logging
 
-import neat
+from neat.nn import feed_forward, recurrent
 
 
+# noinspection PyPep8Naming
 class LEARN_TYPE(Enum):
     Supervised = 1
     Reinforced = 2
 
 
+# noinspection PyPep8Naming
 class NET_TYPE(Enum):
     FeedForward = 1
     Recurrent = 2
 
 
+# noinspection PyPep8Naming
 class EVAL_TYPE(Enum):
     EulerDistance = 1
     HammingDistance = 2
     ManhattanDistance = 3
 
 
+# noinspection PyPep8Naming
 class TYPE_CORRECT(Enum):
     List = 1
     Value = 2
@@ -203,9 +207,9 @@ class FitDevice(object):
         :return: generated network.
         """
         if self.network_type == NET_TYPE.FeedForward:
-            return neat.nn.FeedForwardNetwork.create(genome, config)
+            return feed_forward.FeedForwardNetwork.create(genome, config)
         elif self.network_type == NET_TYPE.Recurrent:
-            return neat.nn.RecurrentNetwork.create(genome, config)
+            return recurrent.RecurrentNetwork.create(genome, config)
 
         return None
 

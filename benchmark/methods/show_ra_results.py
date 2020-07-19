@@ -80,7 +80,8 @@ def clime_by_generation(population_recorders,
     ax.plot_surface(x_axis, y_axis, z_axis, rstride=1, cstride=1, cmap='rainbow', alpha=0.3)
     ax.scatter(population_recorder[1], population_recorder[0], population_recorder[2], c='black')
     ax.contourf(x_axis, y_axis, z_axis, zdir='z', offset=-100, cmap='rainbow', alpha=0.3)
-    ax.scatter(population_recorder[1], population_recorder[0], [-100 for _ in range(len(population_recorder[0]))], c='black')
+    ax.scatter(population_recorder[1], population_recorder[0],
+               [-100 for _ in range(len(population_recorder[0]))], c='black')
 
     ax.view_init(35, -150)
     ax.set_zlim(-100, 60)

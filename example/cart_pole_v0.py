@@ -1,8 +1,8 @@
 import gym
-import neat
+from neat import config, genome, reproduction, species, stagnation
 
-from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
-from utils.operator import Operator
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
+from ReverseEncodingTree.utils.operator import Operator
 
 has_environment = False
 for environment_space in gym.envs.registry.all():
@@ -13,15 +13,13 @@ for environment_space in gym.envs.registry.all():
 if not has_environment:
     raise Exception("no environment named CartPole-v0.")
 
-
 environment = gym.make("CartPole-v0").unwrapped
-
 
 if __name__ == '__main__':
     # load configuration.
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         "../configures/example/cart-pole-v0")
+    task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                "../configures/example/cart-pole-v0")
 
     # load evolution process.
     fitter = FitDevice(FitProcess())
@@ -29,7 +27,7 @@ if __name__ == '__main__':
                            input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
 
     # initialize the NeuroEvolution
-    operator = Operator(config=config, fitter=fitter,
+    operator = Operator(config=task_config, fitter=fitter,
                         node_names={-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'},
                         max_generation=500, output_path="../output/")
 

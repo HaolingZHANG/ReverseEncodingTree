@@ -5,7 +5,7 @@ import warnings
 
 import graphviz
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
 
 
 def plot_statistics(statistics, y_log=False, show=False, parent_path="", filename=None):
@@ -20,8 +20,8 @@ def plot_statistics(statistics, y_log=False, show=False, parent_path="", filenam
     """
     generation = range(len(statistics.most_fit_genomes))
     best_fitness = [c.fitness for c in statistics.most_fit_genomes]
-    avg_fitness = np.array(statistics.get_fitness_mean())
-    stdev_fitness = np.array(statistics.get_fitness_stdev())
+    avg_fitness = numpy.array(statistics.get_fitness_mean())
+    stdev_fitness = numpy.array(statistics.get_fitness_stdev())
 
     plt.plot(generation, avg_fitness, 'b-', label="average")
     plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
@@ -62,7 +62,7 @@ def plot_species(statistics, show=False, parent_path="", filename=None):
 
     species_sizes = statistics.get_species_sizes()
     num_generations = len(species_sizes)
-    curves = np.array(species_sizes).T
+    curves = numpy.array(species_sizes).T
 
     fig, ax = plt.subplots()
     ax.stackplot(range(num_generations), *curves)

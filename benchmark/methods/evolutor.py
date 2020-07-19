@@ -7,8 +7,8 @@ import numpy.linalg as la
 
 from sklearn.cluster import KMeans
 
-from benchmark.methods import inherent
-from benchmark.methods.inherent import Population, Recorder
+from ReverseEncodingTree.benchmark.methods import inherent
+from ReverseEncodingTree.benchmark.methods.inherent import Population, Recorder
 
 
 class GA(object):
@@ -62,7 +62,7 @@ class GA(object):
                         attribute = self.scope - 1
                     new_individual.append(attribute)
 
-                new_individual.append(terrain[new_individual[0]][new_individual[1]])
+                new_individual.append(terrain[int(new_individual[0])][int(new_individual[1])])
                 new_population.add_by_individual(new_individual)
 
             self.population = new_population

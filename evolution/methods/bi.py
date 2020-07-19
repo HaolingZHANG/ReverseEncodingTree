@@ -9,7 +9,7 @@ import copy
 import math
 import pandas
 from sklearn.cluster import KMeans, SpectralClustering, Birch
-from neat import DefaultReproduction
+from neat.reproduction import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
 from evolution.bean.genome import create_near_new, create_center_new, distance_between_two_matrices

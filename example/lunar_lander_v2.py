@@ -1,8 +1,10 @@
 import gym
 import neat
 
-from evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
-from utils.operator import Operator
+from neat import config, genome, reproduction, species, stagnation
+
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
+from ReverseEncodingTree.utils.operator import Operator
 
 has_environment = False
 for environment_space in gym.envs.registry.all():
@@ -16,9 +18,9 @@ if not has_environment:
 environment = gym.make("LunarLander-v2")
 
 if __name__ == '__main__':
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         "../configures/example/lunar-lander-v2")
+    task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
+                                species.DefaultSpeciesSet, stagnation.DefaultStagnation,
+                                "../configures/example/lunar-lander-v2")
 
     # load evolution process.
     fitter = FitDevice(FitProcess())
@@ -27,7 +29,7 @@ if __name__ == '__main__':
                            input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
 
     # initialize the NeuroEvolution
-    operator = Operator(config=config, fitter=fitter,
+    operator = Operator(config=task_config, fitter=fitter,
                         node_names={-1: '1', -2: '2', -3: '3', -4: '4',
                                     -5: '5', -6: '6', -7: '7', -8: '8',
                                     0: 'fire engine'},
