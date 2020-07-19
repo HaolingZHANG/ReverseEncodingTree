@@ -35,10 +35,10 @@ You need to create a configure before running, the document including original s
 
 After creating the configure:
 ```python
-from neat import config, genome, reproduction, species, stagnation
+from neat import population, config, genome, reproduction, species, stagnation
 
 task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction, species.DefaultSpeciesSet, stagnation.DefaultStagnation, "your configure path")
-neat.Population(task_config)
+task_population = population.Population(task_config)
 ```
 ### Continous Learning Environments
 
