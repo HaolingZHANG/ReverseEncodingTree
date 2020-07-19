@@ -7,7 +7,7 @@ News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. A
 Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree** from the [paper](https://arxiv.org/abs/2002.00539).
 ## Getting Started
 The library is divided into two parts.
-In the **benckmark** part, you will easy easily understand the principle of our strategy and its difference from other strategies. 
+In the **benchmark** part, you will easy easily understand the principle of our strategy and its difference from other strategies.
 In the **evolution** part, you can use it for many tasks of NeuroEvolution.
 
 We have further integrated **neat-python** in **evolution/bean**.
@@ -35,8 +35,10 @@ You need to create a configure before running, the document including original s
 
 After creating the configure:
 ```python
-config = neat.Config(genome.GlobalGenome, bi.Reproduction, species_set.StrongSpeciesSet, neat.DefaultStagnation, "your configure path")
-neat.Population(config)
+from neat import config, genome, reproduction, species, stagnation
+
+task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction, species.DefaultSpeciesSet, stagnation.DefaultStagnation, "your configure path")
+neat.Population(task_config)
 ```
 ### Continous Learning Environments
 
@@ -62,5 +64,6 @@ If you think this repo helps or being used in your research, please consider ref
 ````
 
 Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
-# Contributors
+
+# Contributors for this library
 [Haoling Zhang](https://github.com/HaolingZHANG), [Chao-Han Huck Yang](https://github.com/huckiyang)
