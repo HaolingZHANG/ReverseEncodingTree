@@ -1,6 +1,6 @@
 # Evolving Neural Network through a Reverse Encoding Tree
 
-News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details.
+News: Our Paper has been accepted to IEEE CEC 2020 for a lecture presentation. An updated version could be found out [here](https://arxiv.org/abs/2002.00539). Feel free to contact us for experiement details. [Video](https://www.youtube.com/watch?v=bCfc5macPD0)
 
 <img src="https://github.com/HaolingZHANG/ReverseEncodingTree/blob/master/figures/demo_RET2020.png" width="300">
 
@@ -8,7 +8,7 @@ Code for Python 3.7 implementation (in the PyCharm) of **Reverse Encoding Tree**
 ## Getting Started
 The library is divided into two parts.
 In the **benchmark** part, you will easy easily understand the principle of our strategy and its difference from other strategies.
-In the **evolution** part, you can use it for many tasks of NeuroEvolution.
+In the **evolution** part, you can use it for many tasks of **NeuroEvolution**.
 
 We have further integrated **neat-python** in **evolution/bean**.
 The files in the **example** folder describe how to use the original NEAT to finish the well-accepted tasks.
