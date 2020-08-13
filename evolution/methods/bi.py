@@ -12,7 +12,7 @@ from sklearn.cluster import KMeans, SpectralClustering, Birch
 from neat.reproduction import DefaultReproduction
 from neat.config import DefaultClassConfig, ConfigParameter
 
-from evolution.bean.genome import create_near_new, create_center_new, distance_between_two_matrices
+from ReverseEncodingTree.evolution.bean.genome import create_near_new, create_center_new, distance_between_two_matrices
 
 
 class Reproduction(DefaultReproduction):

@@ -5,8 +5,8 @@ Function(s):
 Reproduction by Golden-Section Search and Random Near Search.
 """
 
-from evolution.bean.genome import create_golden_section_new
-from evolution.methods import bi
+from ReverseEncodingTree.evolution.bean.genome import create_golden_section_new
+from ReverseEncodingTree.evolution.methods import bi
 
 
 class Reproduction(bi.Reproduction):
