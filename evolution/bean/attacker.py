@@ -5,8 +5,7 @@ from enum import Enum
 import numpy
 
 
-# noinspection PyPep8Naming
-class ATTACK_TYPE(Enum):
+class AttackType(Enum):
     Normal = 0
     Reverse = 1
     Gaussian = 2
@@ -16,7 +15,7 @@ class ATTACK_TYPE(Enum):
 # noinspection PyPep8Naming
 class CartPole_v0_Attacker(object):
 
-    def __init__(self, current_state=False, beta=0.25, epsilon=0.3, attack_type=ATTACK_TYPE.Normal,
+    def __init__(self, current_state=False, beta=0.25, epsilon=0.3, attack_type=AttackType.Normal,
                  normal_max=0.1, normal_min=0.05, gaussian_peak=0.2):
         """
         initialize attacker for the game name CartPole v0.
@@ -57,23 +56,23 @@ class CartPole_v0_Attacker(object):
         attack_observation = copy.deepcopy(original_observation)
         if need_attack:
             size = len(attack_observation)
-            if self.attack_type == ATTACK_TYPE.Normal:
+            if self.attack_type == AttackType.Normal:
                 for index, value in enumerate(numpy.random.normal(self.normal_max, self.normal_min, size)):
                     if random.randint(0, 1) == 1:
                         attack_observation[index] += value
                     else:
                         attack_observation[index] -= value
-            elif self.attack_type == ATTACK_TYPE.Reverse:
+            elif self.attack_type == AttackType.Reverse:
                 if self.reverse_flag:
                     # reverse the ray tracer, but the keep the 2-dim velocity
                     attack_observation = attack_observation[::-1][: size]
                     self.reverse_flag = False
                 else:
                     self.reverse_flag = True
-            elif self.attack_type == ATTACK_TYPE.Gaussian:
+            elif self.attack_type == AttackType.Gaussian:
                 attack_observation = numpy.random.normal(numpy.mean(attack_observation[: size]),
                                                          self.gaussian_max, size)
-            elif self.attack_type == ATTACK_TYPE.Zerout:
+            elif self.attack_type == AttackType.Zerout:
                 attack_observation[0: size - 1] = 0
 
         return numpy.array(attack_observation)

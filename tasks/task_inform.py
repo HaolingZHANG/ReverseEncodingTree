@@ -6,29 +6,26 @@ from neat import config, genome, reproduction, species, stagnation
 import ReverseEncodingTree.evolution.bean.genome as autogenome
 import ReverseEncodingTree.evolution.bean.species_set as autospecies
 
-from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT, EVAL_TYPE
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TypeCorrect, EvalType
 from ReverseEncodingTree.evolution.methods import bi, gs
 from ReverseEncodingTree.utils.operator import Operator
 
 
-# noinspection PyPep8Naming
-class METHOD_TYPE(Enum):
+class MethodType(Enum):
     N = 0
     FS = 1
     BI = 2
     GS = 3
 
 
-# noinspection PyPep8Naming
-class LOGIC_TYPE(Enum):
+class LogicType(Enum):
     NAND = 1
     NOR = 2
     IMPLY = 3
     XOR = 4
 
 
-# noinspection PyPep8Naming
-class GAME_TYPE(Enum):
+class GameType(Enum):
     CartPole_v0 = 0
     LunarLander_v2 = 1
 
@@ -52,45 +49,45 @@ class Logic(object):
         data_inputs = None
         data_outputs = None
 
-        if logic_type == LOGIC_TYPE.NAND:
+        if logic_type == LogicType.NAND:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(1.0,), (1.0,), (1.0,), (0.0,)]
             self.filename = "nand."
-        elif logic_type == LOGIC_TYPE.NOR:
+        elif logic_type == LogicType.NOR:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(0.0,), (0.0,), (0.0,), (1.0,)]
             self.filename = "nor."
-        elif logic_type == LOGIC_TYPE.IMPLY:
+        elif logic_type == LogicType.IMPLY:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(1.0,), (1.0,), (0.0,), (1.0,)]
             self.filename = "imply."
-        elif logic_type == LOGIC_TYPE.XOR:
+        elif logic_type == LogicType.XOR:
             data_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
             data_outputs = [(0.0,), (1.0,), (1.0,), (0.0,)]
             self.filename = "xor."
 
         # load evolution process.
-        fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
+        fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EvalType.ManhattanDistance))
         fitter.set_dataset({"i": data_inputs, "o": data_outputs})
 
         # load configuration.
         task_config = None
-        if method_type == METHOD_TYPE.N:
+        if method_type == MethodType.N:
             task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
                                         species.DefaultSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/logic.n")
             self.filename += "fs"
-        elif method_type == METHOD_TYPE.FS:
+        elif method_type == MethodType.FS:
             task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
                                         species.DefaultSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/logic.fs")
             self.filename += "fs"
-        elif method_type == METHOD_TYPE.BI:
+        elif method_type == MethodType.BI:
             task_config = config.Config(autogenome.GlobalGenome, bi.Reproduction,
                                         autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/logic.bi")
             self.filename += "bi"
-        elif method_type == METHOD_TYPE.GS:
+        elif method_type == MethodType.GS:
             task_config = config.Config(autogenome.GlobalGenome, gs.Reproduction,
                                         autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/logic.gs")
@@ -178,38 +175,38 @@ class Game(object):
         """
 
         game_environment = None
-        if game_type == GAME_TYPE.CartPole_v0:
+        if game_type == GameType.CartPole_v0:
             game_environment = gym.make("CartPole-v0").unwrapped
             self.filename = "cart-pole-v0."
             self.node_name = {-1: 'In0', -2: 'In1', -3: 'In3', -4: 'In4', 0: 'act1', 1: 'act2'}
-        elif game_type == GAME_TYPE.LunarLander_v2:
+        elif game_type == GameType.LunarLander_v2:
             game_environment = gym.make("LunarLander-v2")
             self.filename = "lunar-lander-v2."
             self.node_name = {-1: '1', -2: '2', -3: '3', -4: '4', -5: '5', -6: '6', -7: '7', -8: '8', 0: 'fire engine'}
 
         fitter = FitDevice(FitProcess())
         fitter.set_environment(environment=game_environment,
-                               input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value,
+                               input_type=TypeCorrect.List, output_type=TypeCorrect.Value,
                                episode_steps=episode_steps, episode_generation=episode_generation,
                                attacker=attacker, noise_level=noise_level)
         # load configuration.
         task_config = None
-        if method_type == METHOD_TYPE.N:
+        if method_type == MethodType.N:
             self.filename += "n"
             task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
                                         species.DefaultSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/" + self.filename)
-        elif method_type == METHOD_TYPE.FS:
+        elif method_type == MethodType.FS:
             self.filename += "fs"
             task_config = config.Config(genome.DefaultGenome, reproduction.DefaultReproduction,
                                         species.DefaultSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/" + self.filename)
-        elif method_type == METHOD_TYPE.BI:
+        elif method_type == MethodType.BI:
             self.filename += "bi"
             task_config = config.Config(autogenome.GlobalGenome, bi.Reproduction,
                                         autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
                                         "../configures/task/" + self.filename)
-        elif method_type == METHOD_TYPE.GS:
+        elif method_type == MethodType.GS:
             self.filename += "gs"
             task_config = config.Config(autogenome.GlobalGenome, gs.Reproduction,
                                         autospecies.StrongSpeciesSet, stagnation.DefaultStagnation,
@@ -283,13 +280,13 @@ def save_distribution(counts, parent_path, task_name, method_type):
     :param method_type: type of method in evolution process.
     """
     path = parent_path + task_name + "."
-    if method_type == METHOD_TYPE.N:
+    if method_type == MethodType.N:
         path += "n.csv"
-    elif method_type == METHOD_TYPE.FS:
+    elif method_type == MethodType.FS:
         path += "fs.csv"
-    elif method_type == METHOD_TYPE.BI:
+    elif method_type == MethodType.BI:
         path += "bi.csv"
-    elif method_type == METHOD_TYPE.GS:
+    elif method_type == MethodType.GS:
         path += "gs.csv"
 
     with open(path, "w", encoding="utf-8") as save_file:

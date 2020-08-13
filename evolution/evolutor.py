@@ -7,34 +7,30 @@ import logging
 from neat.nn import feed_forward, recurrent
 
 
-# noinspection PyPep8Naming
-class LEARN_TYPE(Enum):
+class LearnType(Enum):
     Supervised = 1
     Reinforced = 2
 
 
-# noinspection PyPep8Naming
-class NET_TYPE(Enum):
+class NetType(Enum):
     FeedForward = 1
     Recurrent = 2
 
 
-# noinspection PyPep8Naming
-class EVAL_TYPE(Enum):
+class EvalType(Enum):
     EulerDistance = 1
     HammingDistance = 2
     ManhattanDistance = 3
 
 
-# noinspection PyPep8Naming
-class TYPE_CORRECT(Enum):
+class TypeCorrect(Enum):
     List = 1
     Value = 2
 
 
 class FitDevice(object):
 
-    def __init__(self, method, network_type=NET_TYPE.FeedForward):
+    def __init__(self, method, network_type=NetType.FeedForward):
         """
         Initialize the evolution calculation and type of network.
 
@@ -76,7 +72,7 @@ class FitDevice(object):
             self.environment = environment
             self.episode_steps = episode_steps
             self.episode_generation = episode_generation
-            self.learn_type = LEARN_TYPE.Reinforced
+            self.learn_type = LearnType.Reinforced
             self.input_type = input_type
             self.output_type = output_type
             self.attacker = attacker
@@ -94,7 +90,7 @@ class FitDevice(object):
         """
         if self.environment is None:
             self.dataset = dataset
-            self.learn_type = LEARN_TYPE.Supervised
+            self.learn_type = LearnType.Supervised
         elif self.learn_type is None:
             logging.warning("Do not enter data repeatedly!")
         else:
@@ -118,7 +114,7 @@ class FitDevice(object):
         :param genome: genome of NEAT.
         :param config: configure of genome.
         """
-        if self.learn_type == LEARN_TYPE.Supervised:
+        if self.learn_type == LearnType.Supervised:
             eval("self._genome_in_supervised")(genome, config)
         else:
             eval("self._genome_in_reinforced")(genome, config)
@@ -168,18 +164,18 @@ class FitDevice(object):
                     actual_observation = observation
 
                 # check input type
-                if self.input_type == TYPE_CORRECT.List and type(actual_observation) is not numpy.ndarray:
+                if self.input_type == TypeCorrect.List and type(actual_observation) is not numpy.ndarray:
                     actual_observation = numpy.array([actual_observation])
-                if self.input_type == TYPE_CORRECT.Value and type(actual_observation) is numpy.ndarray:
+                if self.input_type == TypeCorrect.Value and type(actual_observation) is numpy.ndarray:
                     actual_observation = actual_observation[0]
 
                 action_values = network.activate(actual_observation)
                 action = numpy.argmax(action_values)
 
                 # check output type
-                if self.output_type == TYPE_CORRECT.List and type(action) is not numpy.ndarray:
+                if self.output_type == TypeCorrect.List and type(action) is not numpy.ndarray:
                     action = numpy.array([action])
-                if self.output_type == TYPE_CORRECT.Value and type(action) is numpy.ndarray:
+                if self.output_type == TypeCorrect.Value and type(action) is numpy.ndarray:
                     action = action[0]
 
                 current_observation, reward, done, _ = self.environment.step(action)
@@ -206,9 +202,9 @@ class FitDevice(object):
 
         :return: generated network.
         """
-        if self.network_type == NET_TYPE.FeedForward:
+        if self.network_type == NetType.FeedForward:
             return feed_forward.FeedForwardNetwork.create(genome, config)
-        elif self.network_type == NET_TYPE.Recurrent:
+        elif self.network_type == NetType.Recurrent:
             return recurrent.RecurrentNetwork.create(genome, config)
 
         return None
@@ -216,7 +212,7 @@ class FitDevice(object):
 
 class FitProcess(object):
 
-    def __init__(self, init_fitness=None, eval_type=EVAL_TYPE.EulerDistance):
+    def __init__(self, init_fitness=None, eval_type=EvalType.EulerDistance):
         """
         Initialize the hyper-parameters.
 
@@ -238,11 +234,11 @@ class FitProcess(object):
         """
         record = 0
         for value, expected_value in zip(output, expected_output):
-            if self.eval_type == EVAL_TYPE.EulerDistance:
+            if self.eval_type == EvalType.EulerDistance:
                 record += math.sqrt(math.pow(value - expected_value, 2))
-            elif self.eval_type == EVAL_TYPE.HammingDistance:
+            elif self.eval_type == EvalType.HammingDistance:
                 record += abs(1 - int(value == expected_value))
-            elif self.eval_type == EVAL_TYPE.ManhattanDistance:
+            elif self.eval_type == EvalType.ManhattanDistance:
                 record += math.pow(value - expected_value, 2)
 
         return previous_fitness - record
@@ -261,7 +257,7 @@ class FitProcess(object):
 
         :return: current fitness.
         """
-        if learn_type == LEARN_TYPE.Supervised:
+        if learn_type == LearnType.Supervised:
             if self.init_fitness is None:
                 raise Exception("No init fitness value!")
             current_fitness = self.init_fitness

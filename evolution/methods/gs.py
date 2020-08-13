@@ -1,5 +1,5 @@
 """
-Name: NEAT evoluted by Golden-Section Search
+Name: NEAT evolved by Golden-Section Search
 
 Function(s):
 Reproduction by Golden-Section Search and Random Near Search.

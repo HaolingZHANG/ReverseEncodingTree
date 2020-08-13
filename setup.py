@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="ReverseEncodingTree",
-    version="1.1",
+    version="1.2",
     description="library for the Reverse Encoding Tree",
     long_description="NeuroEvolution is one of the most competitive evolutionary learning strategies for "
                      "designing novel neural networks for use in specific tasks. "

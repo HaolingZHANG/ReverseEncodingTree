@@ -7,12 +7,11 @@ from enum import Enum
 
 from neat import population, checkpoint, statistics, reporting
 
-from ReverseEncodingTree.evolution.evolutor import LEARN_TYPE, TYPE_CORRECT
+from ReverseEncodingTree.evolution.evolutor import LearnType, TypeCorrect
 from ReverseEncodingTree.utils import visualize
 
 
-# noinspection PyPep8Naming
-class REPORTER_TYPE(Enum):
+class ReporterType(Enum):
     Statistic = 1
     Stdout = 2
     Checkpoint = 3
@@ -80,6 +79,20 @@ class Operator(object):
         """
         return self._winner
 
+    def get_final_genomes(self):
+        """
+        get final genomes (population)
+
+        :return: final genomes
+        """
+        genomes = []
+        for genome_index, genome in self._population.population.items():
+            genomes.append(genome)
+
+        genomes.sort(reverse=True, key=lambda g: g.fitness)
+
+        return genomes
+
     def get_best_network(self):
         """
         get the winning network.
@@ -96,11 +109,11 @@ class Operator(object):
 
         :return: reporter.
         """
-        if reporter_type == REPORTER_TYPE.Statistic:
+        if reporter_type == ReporterType.Statistic:
             return self._statistics_reporter
-        elif reporter_type == REPORTER_TYPE.Stdout:
+        elif reporter_type == ReporterType.Stdout:
             return self._stdout_reporter
-        elif reporter_type == REPORTER_TYPE.Checkpoint:
+        elif reporter_type == ReporterType.Checkpoint:
             return self._checkpoint_reporter
 
         return {"statistics": self._statistics_reporter,
@@ -148,7 +161,7 @@ class Operator(object):
         :param run_minutes: running minutes in Reinforcement Learning.
         :return: result in Supervised Learning.
         """
-        if self._fitter.learn_type == LEARN_TYPE.Supervised:
+        if self._fitter.learn_type == LearnType.Supervised:
             obtain_outputs = []
             for current_input in dataset.get("i"):
                 obtain_outputs.append(self._winner.activate(current_input))
@@ -164,7 +177,7 @@ class Operator(object):
 
             return right, len(dataset.get("o"))
 
-        elif self._fitter.learn_type == LEARN_TYPE.Reinforced:
+        elif self._fitter.learn_type == LearnType.Reinforced:
             has_attack = attacker is not None and noise_level is not None
 
             network = self.get_best_network()
@@ -186,18 +199,18 @@ class Operator(object):
                         actual_observation = observation
 
                     # check input type
-                    if input_type == TYPE_CORRECT.List and type(actual_observation) is not numpy.ndarray:
+                    if input_type == TypeCorrect.List and type(actual_observation) is not numpy.ndarray:
                         actual_observation = numpy.array([actual_observation])
-                    if input_type == TYPE_CORRECT.Value and type(actual_observation) is numpy.ndarray:
+                    if input_type == TypeCorrect.Value and type(actual_observation) is numpy.ndarray:
                         actual_observation = actual_observation[0]
 
                     action_values = network.activate(actual_observation)
                     action = numpy.argmax(action_values)
 
                     # check output type
-                    if output_type == TYPE_CORRECT.List and type(action) is not numpy.ndarray:
+                    if output_type == TypeCorrect.List and type(action) is not numpy.ndarray:
                         action = numpy.array([action])
-                    if output_type == TYPE_CORRECT.Value and type(action) is numpy.ndarray:
+                    if output_type == TypeCorrect.Value and type(action) is numpy.ndarray:
                         action = action[0]
 
                     _, _, done, _ = environment.step(action)

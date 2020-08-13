@@ -1,5 +1,5 @@
 """
-Name: NEAT evoluted by Binary Search
+Name: NEAT evolved by Binary Search
 
 Function(s):
 Reproduction by Binary Search and Random Near Search.

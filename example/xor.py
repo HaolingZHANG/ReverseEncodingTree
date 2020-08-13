@@ -1,6 +1,6 @@
 from neat import config, genome, reproduction, species, stagnation
 
-from ReverseEncodingTree.evolution.evolutor import EVAL_TYPE, FitDevice, FitProcess
+from ReverseEncodingTree.evolution.evolutor import EvalType, FitDevice, FitProcess
 from ReverseEncodingTree.utils.operator import Operator
 
 # 2-input XOR inputs and expected outputs.
@@ -14,7 +14,7 @@ if __name__ == '__main__':
                                 "../configures/example/xor")
 
     # load evolution process.
-    fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EVAL_TYPE.ManhattanDistance))
+    fitter = FitDevice(FitProcess(init_fitness=4, eval_type=EvalType.ManhattanDistance))
     fitter.set_dataset({"i": xor_inputs, "o": xor_outputs})
 
     # initialize the NeuroEvolution

@@ -1,7 +1,7 @@
 import gym
 from neat import config, genome, reproduction, species, stagnation
 
-from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TYPE_CORRECT
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TypeCorrect
 from ReverseEncodingTree.utils.operator import Operator
 
 has_environment = False
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # load evolution process.
     fitter = FitDevice(FitProcess())
     fitter.set_environment(environment=environment, episode_steps=300, episode_generation=10,
-                           input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+                           input_type=TypeCorrect.List, output_type=TypeCorrect.Value)
 
     # initialize the NeuroEvolution
     operator = Operator(config=task_config, fitter=fitter,
@@ -39,4 +39,4 @@ if __name__ == '__main__':
 
     # evaluate the NeuroEvolution.
     operator.evaluation(environment=environment,
-                        input_type=TYPE_CORRECT.List, output_type=TYPE_CORRECT.Value)
+                        input_type=TypeCorrect.List, output_type=TypeCorrect.Value)
