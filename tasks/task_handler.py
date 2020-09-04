@@ -1,5 +1,5 @@
-from ReverseEncodingTree.evolution.bean.attacker import *
-from ReverseEncodingTree.tasks.task_inform import *
+from evolution.bean.attacker import *
+from tasks.task_inform import *
 
 
 def run_imply():

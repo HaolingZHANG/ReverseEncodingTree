@@ -6,7 +6,8 @@ from neat import config, genome, reproduction, species, stagnation
 import ReverseEncodingTree.evolution.bean.genome as autogenome
 import ReverseEncodingTree.evolution.bean.species_set as autospecies
 
-from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess, TypeCorrect, EvalType
+from ReverseEncodingTree.evolution.evolutor import TypeCorrect, EvalType
+from ReverseEncodingTree.evolution.evolutor import FitDevice, FitProcess
 from ReverseEncodingTree.evolution.methods import bi, gs
 from ReverseEncodingTree.utils.operator import Operator
 
