@@ -72,14 +72,20 @@ def create_near_new(genome, config, key):
 
     :return: the new genome.
     """
-    while True:
-        new_genome = copy.deepcopy(genome)
-        new_genome.key = key
-        new_genome.fitness = None
-        new_genome.mutate(config)
-        new_genome.set_feature_matrix(config)
-        if create_check(genome):
-            return new_genome
+    new_genome = copy.deepcopy(genome)
+    new_genome.key = key
+    new_genome.fitness = None
+    new_genome.mutate(config)
+    new_genome.set_feature_matrix(config)
+    return new_genome
+    # while True:
+    #     new_genome = copy.deepcopy(genome)
+    #     new_genome.key = key
+    #     new_genome.fitness = None
+    #     new_genome.mutate(config)
+    #     new_genome.set_feature_matrix(config)
+    #     if create_check(genome):
+    #         return new_genome
 
 
 def create_check(genome):
