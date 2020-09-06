@@ -8,7 +8,6 @@ from neat.config import ConfigParameter
 from neat.genes import DefaultNodeGene, DefaultConnectionGene
 from neat.genome import DefaultGenome
 from neat.genome import DefaultGenomeConfig
-from neat.nn import feed_forward, recurrent
 from six import iteritems, itervalues
 
 
@@ -34,10 +33,7 @@ def create_center_new(feature_matrix_1, feature_matrix_2, config, key):
     new_genome = GlobalGenome(key)
     new_genome.feature_matrix_new(new_feature_matrix, config)
 
-    if create_check(new_genome, config):
-        return new_genome
-
-    return None
+    return new_genome
 
 
 def create_golden_section_new(feature_matrix_1, feature_matrix_2, config, key):
@@ -63,10 +59,7 @@ def create_golden_section_new(feature_matrix_1, feature_matrix_2, config, key):
     new_genome = GlobalGenome(key)
     new_genome.feature_matrix_new(new_feature_matrix, config)
 
-    if create_check(new_genome, config):
-        return new_genome
-
-    return None
+    return new_genome
 
 
 def create_near_new(genome, config, key):
@@ -79,31 +72,27 @@ def create_near_new(genome, config, key):
 
     :return: the new genome.
     """
-    new_genome = copy.deepcopy(genome)
-    new_genome.key = key
-    new_genome.fitness = None
-    new_genome.mutate(config)
-    new_genome.set_feature_matrix(config)
+    while True:
+        new_genome = copy.deepcopy(genome)
+        new_genome.key = key
+        new_genome.fitness = None
+        new_genome.mutate(config)
+        new_genome.set_feature_matrix(config)
+        if create_check(genome):
+            return new_genome
 
-    return new_genome
 
-
-def create_check(genome, genome_config):
+def create_check(genome):
     """
     check whether the genome can be constructed into a network.
 
     :param genome: the information of genome.
-    :param genome_config: the config of genome.
-
-    :return: whether or not.
     """
-    try:
-        if genome_config.feed_forward:
-            feed_forward.FeedForwardNetwork.create(genome, TempConfig(genome_config))
-        else:
-            recurrent.RecurrentNetwork.create(genome, TempConfig(genome_config))
-    except KeyError:
-        return False
+    for connection_gene in itervalues(genome.connections):
+        if connection_gene.enabled:
+            for node_id in connection_gene.key:
+                if node_id >= 0 and node_id not in list(genome.nodes.keys()):
+                    return False
 
     return True
 
@@ -363,9 +352,3 @@ class GlobalGenome(DefaultGenome):
             s += "\n\t" + str(row)
 
         return s
-
-
-class TempConfig(object):
-
-    def __init__(self, genome_config):
-        self.genome_config = genome_config
