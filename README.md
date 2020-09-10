@@ -52,14 +52,17 @@ task_population = population.Population(task_config)
 
 If you think this repo helps or being used in your research, please consider refer this paper. Thank you.
 
-- [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539, IEEE CEC 2020 Oral.
+- [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539, IEEE-CEC 2020 Oral.
 
 ````
-@article{zhang2020evolving,
-  title={Evolving Neural Networks through a Reverse Encoding Tree},
-  author={Zhang, Haoling and Yang, Chao-Han Huck and Zenil, Hector and Kiani, Narsis A and Shen, Yue and Tegner, Jesper N},
-  journal={arXiv preprint arXiv:2002.00539},
-  year={2020}
+@INPROCEEDINGS{zhang2020evolving,
+  author={H. {Zhang} and C. H. {Yang} and H. {Zenil} and N. A. {Kiani} and Y. {Shen} and J. N. {Tegner}},
+  booktitle={2020 IEEE Congress on Evolutionary Computation (CEC)}, 
+  title={Evolving Neural Networks through a Reverse Encoding Tree}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={1-10}
 }
 ````
 
