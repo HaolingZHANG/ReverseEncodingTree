@@ -55,15 +55,15 @@ If you think this repo helps or being used in your research, please consider ref
 - [Evolving Neural Networks through a Reverse Encoding Tree](https://arxiv.org/abs/2002.00539), Arxiv 2002.00539, IEEE-CEC 2020 Oral.
 
 ````
-@INPROCEEDINGS{zhang2020evolving,
-  author={H. {Zhang} and C. H. {Yang} and H. {Zenil} and N. A. {Kiani} and Y. {Shen} and J. N. {Tegner}},
-  booktitle={2020 IEEE Congress on Evolutionary Computation (CEC)}, 
-  title={Evolving Neural Networks through a Reverse Encoding Tree}, 
+@inproceedings{zhang2020evolving,
+  title={Evolving neural networks through a reverse encoding tree},
+  author={Zhang, Haoling and Yang, Chao-Han Huck and Zenil, Hector and Kiani, Narsis A and Shen, Yue and Tegner, Jesper N},
+  booktitle={2020 IEEE Congress on Evolutionary Computation (CEC)},
+  pages={1--10},
   year={2020},
-  volume={},
-  number={},
-  pages={1-10}
+  organization={IEEE}
 }
+
 ````
 
 Haoling Zhang, Chao-Han Huck Yang, Hector Zenil, Narsis A. Kiani, Yue Shen, Jesper N. Tegner
