@@ -8,7 +8,7 @@ from neat.config import ConfigParameter
 from neat.genes import DefaultNodeGene, DefaultConnectionGene
 from neat.genome import DefaultGenome
 from neat.genome import DefaultGenomeConfig
-from six import iteritems, itervalues
+from neat.six_util import iteritems, itervalues
 
 
 def create_center_new(feature_matrix_1, feature_matrix_2, config, key):
